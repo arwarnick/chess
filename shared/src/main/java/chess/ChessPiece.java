@@ -182,12 +182,16 @@ public class ChessPiece {
             addLinearMoves(moves, board, myPosition, 1, 1);   // Diagonal down-right
         }
 
-        // ... logic for other piece types ...
+        // Rook logic
+        if (this.getPieceType() == PieceType.ROOK) {
+            addLinearMoves(moves, board, myPosition, -1, 0); // Vertical up
+            addLinearMoves(moves, board, myPosition, 1, 0);  // Vertical down
+            addLinearMoves(moves, board, myPosition, 0, -1); // Horizontal left
+            addLinearMoves(moves, board, myPosition, 0, 1);  // Horizontal right
+        }
 
         return moves;
     }
-
-    // Queen utility method ...
 
     private void addLinearMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection) {
         int currentRow = startPosition.getRow();
@@ -215,7 +219,9 @@ public class ChessPiece {
         }
     }
 
-    // Pawn utility methods ...
+    private boolean isPositionValid(ChessPosition position) {
+        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
+    }
 
     private void handlePawnPromotion(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
         int direction = getPawnDirection();
@@ -227,10 +233,6 @@ public class ChessPiece {
 
         // Capture and promote
         addPawnCaptureMoves(moves, board, myPosition, true); // true indicates promotion
-    }
-
-    private boolean isPositionValid(ChessPosition position) {
-        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 
     private void addPromotionMoves(Set<ChessMove> moves, ChessPosition startPosition, ChessPosition endPosition) {

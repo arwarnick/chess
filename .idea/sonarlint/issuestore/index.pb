@@ -1,6 +1,4 @@
 
-q
-Ashared/src/test/java/passoffTests/chessTests/ChessBoardTests.java,9\b\9b6410093bb8fe026dcb494e17062e36d849bab6
 p
 @shared/src/test/java/passoffTests/chessTests/ChessMoveTests.java,f\d\fd81fbf269c57a4155b6a5d43007bb4e29e137c0
 t
