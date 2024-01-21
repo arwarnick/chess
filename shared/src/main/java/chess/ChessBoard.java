@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Arrays;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -56,6 +58,51 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // Clear the board
+        for (int i = 0; i < 8; i++) {
+            Arrays.fill(board[i], null);
+        }
+
+        // Set up the pieces
+        setupRow(ChessGame.TeamColor.WHITE, 1); // White pawns
+        setupRow(ChessGame.TeamColor.BLACK, 6); // Black pawns
+        setupBackRow(ChessGame.TeamColor.WHITE, 0); // White back row
+        setupBackRow(ChessGame.TeamColor.BLACK, 7); // Black back row
+    }
+
+    private void setupRow(ChessGame.TeamColor color, int row) {
+        for (int col = 0; col < 8; col++) {
+            board[row][col] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+        }
+    }
+
+    private void setupBackRow(ChessGame.TeamColor color, int row) {
+        board[row][0] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        board[row][7] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        board[row][1] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+        board[row][6] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+        board[row][2] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        board[row][5] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        board[row][3] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
+        board[row][4] = new ChessPiece(color, ChessPiece.PieceType.KING);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        ChessBoard other = (ChessBoard) obj;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = this.board[row][col];
+                ChessPiece otherPiece = other.board[row][col];
+                if (piece == null && otherPiece == null) continue;
+                if (piece == null || otherPiece == null) return false;
+                if (!piece.equals(otherPiece)) return false;
+            }
+        }
+        return true;
     }
 }
