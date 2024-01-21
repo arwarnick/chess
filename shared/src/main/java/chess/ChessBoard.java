@@ -8,8 +8,12 @@ package chess;
  */
 public class ChessBoard {
 
+    private ChessPiece[][] board;
+
     public ChessBoard() {
-        
+        // Initialize an 8x8 array to represent the chessboard.
+        // The board is empty initially.
+        this.board = new ChessPiece[8][8];
     }
 
     /**
@@ -19,7 +23,15 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+        // Convert the ChessPosition to array indices and place the piece.
+        int row = position.getRow() - 1; // Assuming rows are 1-indexed.
+        int col = position.getColumn() - 1; // Assuming columns are 1-indexed.
+        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+            board[row][col] = piece;
+        } else {
+            // Optionally, you can throw an exception or handle this case if the position is out of bounds.
+            System.out.println("Position is out of the chessboard bounds.");
+        }
     }
 
     /**
@@ -30,7 +42,13 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+        // Convert the ChessPosition to array indices and retrieve the piece.
+        int row = position.getRow() - 1; // Assuming rows are 1-indexed.
+        int col = position.getColumn() - 1; // Assuming columns are 1-indexed.
+        if (row < 0 || row >= board.length || col < 0 || col >= board[0].length) {
+            return null; // Position is out of bounds of the board
+        }
+        return board[row][col];
     }
 
     /**
