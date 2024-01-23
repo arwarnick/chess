@@ -1,7 +1,17 @@
 
-]
--shared/src/main/java/chess/ChessPosition.java,3\b\3b013a24b64d343e15bac32b29d3d69c6c135d82
-Y
-)shared/src/main/java/chess/ChessMove.java,c\5\c52f67c55315a844e23611bb848b35269aaedb66
-d
-4shared/src/main/java/chess/InvalidMoveException.java,e\3\e39c3486fec5f2b87e64591840622613400adc99
+
+Qshared/src/test/java/passoffTests/chessTests/chessPieceTests/BishopMoveTests.java,0\1\01d938520fc54bb619cf4daa2dd07656e8498d2d
+
+Oshared/src/test/java/passoffTests/chessTests/chessPieceTests/KingMoveTests.java,4\f\4f5a51785069c3350ff6545d5f83e804a2493066
+
+Qshared/src/test/java/passoffTests/chessTests/chessPieceTests/KnightMoveTests.java,4\c\4c7caabc1ede81d1a0e7a00955ce8d5b44bdb8a2
+
+Oshared/src/test/java/passoffTests/chessTests/chessPieceTests/PawnMoveTests.java,2\2\22d5d7ba9b083d375e88f3a668d54f397cf1c86c
+€
+Pshared/src/test/java/passoffTests/chessTests/chessPieceTests/QueenMoveTests.java,b\7\b7a81e11a5af1e18a99fa5a428d1e98904fe5e1f
+
+Oshared/src/test/java/passoffTests/chessTests/chessPieceTests/RookMoveTests.java,8\8\885e6054d5b92ec42f1b68812c44b03c5665418b
+q
+Ashared/src/test/java/passoffTests/chessTests/ChessBoardTests.java,9\b\9b6410093bb8fe026dcb494e17062e36d849bab6
+p
+@shared/src/test/java/passoffTests/chessTests/ChessMoveTests.java,f\d\fd81fbf269c57a4155b6a5d43007bb4e29e137c0

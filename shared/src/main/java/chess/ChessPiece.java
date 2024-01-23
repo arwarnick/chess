@@ -277,4 +277,9 @@ public class ChessPiece {
         ChessPiece other = (ChessPiece) obj;
         return pieceColor == other.pieceColor && type == other.type;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
 }
