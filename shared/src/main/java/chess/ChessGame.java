@@ -87,6 +87,19 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position.");
         }
 
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int promotionRow = piece.getTeamColor() == TeamColor.WHITE ? 8 : 1;
+            if (move.getEndPosition().getRow() == promotionRow) {
+                // Perform promotion
+                if (move.getPromotionPiece() != null) {
+                    // Replace pawn with new piece of specified type and same color
+                    piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+                } else {
+                    throw new InvalidMoveException("Promotion piece type must be specified.");
+                }
+            }
+        }
+
         // Check if it's the correct team's turn
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("It's not " + piece.getTeamColor() + "'s turn.");
