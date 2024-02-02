@@ -87,6 +87,19 @@ public class ChessBoard {
         board[row][4] = new ChessPiece(color, ChessPiece.PieceType.KING);
     }
 
+    public ChessBoard deepCopy() {
+        ChessBoard copy = new ChessBoard();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (this.board[row][col] != null) {
+                    copy.board[row][col] = new ChessPiece(this.board[row][col].getTeamColor(), this.board[row][col].getPieceType());
+                }
+            }
+        }
+        return copy;
+    }
+
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

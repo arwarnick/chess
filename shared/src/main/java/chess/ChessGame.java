@@ -163,8 +163,45 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) {
+            return false; // Not in checkmate if not in check
+        }
+
+        // Iterate over all pieces of the teamColor to see if any move can remove the check
+        for (int row = 1; row <= 8; row++) {
+            for (int column = 1; column <= 8; column++) {
+                ChessPosition position = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> potentialMoves = piece.pieceMoves(board, position);
+                    for (ChessMove move : potentialMoves) {
+                        // Simulate each move to see if it would remove the check
+                        if (!simulateMove(move)) {
+                            return false; // Found a move that can remove the check, so not in checkmate
+                        }
+                    }
+                }
+            }
+        }
+        return true; // No move found to remove the check, so in checkmate
     }
+
+    private boolean simulateMove(ChessMove move) {
+        ChessBoard simulatedBoard = this.board.deepCopy();
+        // Make the move on the simulated board
+        simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
+        simulatedBoard.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
+
+        // Set up a temporary ChessGame to check the state after the move
+        ChessGame tempGame = new ChessGame();
+        tempGame.setBoard(simulatedBoard);
+        tempGame.setTeamTurn(this.teamTurn); // Keep the same turn for simulation
+
+        // Return false if the move gets the team out of check, true otherwise
+        return tempGame.isInCheck(this.teamTurn);
+    }
+
+
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
@@ -174,8 +211,29 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)) {
+            return false; // Can't be stalemate if in check
+        }
+
+        // Iterate over all pieces of the teamColor to see if any move is possible
+        for (int row = 1; row <= 8; row++) {
+            for (int column = 1; column <= 8; column++) {
+                ChessPosition position = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    for (ChessMove potentialMove : piece.pieceMoves(board, position)) {
+                        // Simulate the move to check if it results in a state that's not check
+                        if (!simulateMove(potentialMove)) {
+                            return false; // Found at least one legal move, so not in stalemate
+                        }
+                    }
+                }
+            }
+        }
+        return true; // No legal moves found, so in stalemate
     }
+
+
 
     /**
      * Sets this game's chessboard with a given board
