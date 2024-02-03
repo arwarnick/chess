@@ -15,7 +15,5 @@ q
 Ashared/src/test/java/passoffTests/chessTests/ChessBoardTests.java,9\b\9b6410093bb8fe026dcb494e17062e36d849bab6
 p
 @shared/src/test/java/passoffTests/chessTests/ChessMoveTests.java,f\d\fd81fbf269c57a4155b6a5d43007bb4e29e137c0
-b
-2shared/src/test/java/passoffTests/TestFactory.java,e\9\e9394cf4f23ef8e3e7f7d6cf9f7b3605ba345448
 t
 Dshared/src/test/java/passoffTests/chessTests/ChessPositionTests.java,b\6\b6da2b321f147e6973776aa3b7f592e5551e291d
