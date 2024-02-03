@@ -56,21 +56,36 @@ public class ChessGame {
             return Collections.emptyList(); // No piece at the given position
         }
 
+        // Generate potential moves for the piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
-        // Here, need to filter out moves that would result in self-check, for example:
-        // .filter(move -> !wouldResultInCheck(move))
-        // For now, return all potential moves as calculated without further validation.
 
+        // Filter out moves that would result in a check
         return potentialMoves.stream()
-                .filter(move -> isValidMove(move)) // Placeholder for future validation method
+                .filter(this::moveDoesNotResultInCheck)
                 .collect(Collectors.toSet());
     }
 
-    private boolean isValidMove(ChessMove move) {
-        // Future implementation to check for checks, pins, etc.
-        // For now, simply return true to accept all moves from pieceMoves.
-        return true;
+
+    private boolean moveDoesNotResultInCheck(ChessMove move) {
+        // Create a deep copy of the board for simulation
+        ChessBoard simulatedBoard = this.board.deepCopy();
+
+        // Create a temporary game instance using the copied board
+        ChessGame tempGame = new ChessGame();
+        tempGame.setBoard(simulatedBoard);
+        tempGame.setTeamTurn(this.teamTurn); // Carry over the current turn
+
+        // Simulate the move
+        try {
+            tempGame.makeMove(move);
+            // After the move, check if the current team is in check
+            return !tempGame.isInCheck(this.teamTurn);
+        } catch (InvalidMoveException e) {
+            // If the move is invalid, it certainly doesn't get us out of check
+            return false;
+        }
     }
+
 
     /**
      * Makes a move in a chess game
