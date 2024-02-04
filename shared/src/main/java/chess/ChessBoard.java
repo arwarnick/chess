@@ -99,6 +99,13 @@ public class ChessBoard {
         return copy;
     }
 
+    public void movePiece(ChessPosition start, ChessPosition end) {
+        ChessPiece piece = getPiece(start);
+        if (piece != null) {
+            addPiece(end, piece); // Move the piece to the new location
+            addPiece(start, null); // Remove the piece from the original location
+        }
+    }
 
     @Override
     public boolean equals(Object obj) {

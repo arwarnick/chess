@@ -70,21 +70,44 @@ public class ChessGame {
         // Create a deep copy of the board for simulation
         ChessBoard simulatedBoard = this.board.deepCopy();
 
-        // Create a temporary game instance using the copied board
+        // Simulate the move on the copied board
+        simulatedBoard.movePiece(move.getStartPosition(), move.getEndPosition());
+
+        // Create a temporary game instance using the copied board to check for check condition
         ChessGame tempGame = new ChessGame();
         tempGame.setBoard(simulatedBoard);
-        tempGame.setTeamTurn(this.teamTurn); // Carry over the current turn
 
-        // Simulate the move
-        try {
-            tempGame.makeMove(move);
-            // After the move, check if the current team is in check
-            return !tempGame.isInCheck(this.teamTurn);
-        } catch (InvalidMoveException e) {
-            // If the move is invalid, it certainly doesn't get us out of check
-            return false;
-        }
+
+
+
+
+        // It's crucial to set the turn to the opponent's turn since isInCheck checks if the current turn's king is in check
+        tempGame.setTeamTurn((this.teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
+
+        // After the simulated move, check if the original team is in check
+        // We need to check against the original team's turn because that's whose move we are simulating
+        boolean isInCheckAfterMove = tempGame.isInCheck((this.teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
+
+        // If the team that made the move is in check after the move, then the move results in check
+
+
+        //return !isInCheckAfterMove;
+        if (isInCheckAfterMove) return false;
+        if (!isInCheckAfterMove) return true;
+
+
+
+
+        tempGame.setTeamTurn(this.teamTurn); // Maintain the current turn
+
+        // Now check if the king is in check after the move
+        boolean kingInCheckAfterMove = tempGame.isInCheck(this.teamTurn);
+
+        // If the king is in check after the move, the move is not valid
+
+        return !kingInCheckAfterMove;
     }
+
 
 
     /**
