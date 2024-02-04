@@ -59,6 +59,12 @@ public class ChessGame {
         // Generate potential moves for the piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
 
+        if (piece.getTeamColor() == TeamColor.WHITE && piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            return potentialMoves.stream()
+                    .filter(this::moveDoesNotResultInCheck1)
+                    .collect(Collectors.toSet());
+        }
+
         // Filter out moves that would result in a check
         return potentialMoves.stream()
                 .filter(this::moveDoesNotResultInCheck)
@@ -78,9 +84,6 @@ public class ChessGame {
         tempGame.setBoard(simulatedBoard);
 
 
-
-
-
         // It's crucial to set the turn to the opponent's turn since isInCheck checks if the current turn's king is in check
         tempGame.setTeamTurn((this.teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
 
@@ -89,13 +92,19 @@ public class ChessGame {
         boolean isInCheckAfterMove = tempGame.isInCheck((this.teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
 
         // If the team that made the move is in check after the move, then the move results in check
+        return !isInCheckAfterMove;
+    }
 
+    private boolean moveDoesNotResultInCheck1(ChessMove move) {
+        // Create a deep copy of the board for simulation
+        ChessBoard simulatedBoard = this.board.deepCopy();
 
-        //return !isInCheckAfterMove;
-        if (isInCheckAfterMove) return false;
-        if (!isInCheckAfterMove) return true;
+        // Perform the move on the simulated board
+        simulatedBoard.movePiece(move.getStartPosition(), move.getEndPosition());
 
-
+        // Check if the move results in the moving player's king being in check
+        ChessGame tempGame = new ChessGame();
+        tempGame.setBoard(simulatedBoard);
 
 
         tempGame.setTeamTurn(this.teamTurn); // Maintain the current turn
@@ -104,11 +113,8 @@ public class ChessGame {
         boolean kingInCheckAfterMove = tempGame.isInCheck(this.teamTurn);
 
         // If the king is in check after the move, the move is not valid
-
         return !kingInCheckAfterMove;
     }
-
-
 
     /**
      * Makes a move in a chess game
