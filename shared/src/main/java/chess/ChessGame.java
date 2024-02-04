@@ -59,20 +59,20 @@ public class ChessGame {
         // Generate potential moves for the piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
 
-        if (piece.getTeamColor() == TeamColor.WHITE && piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+        if (piece.getTeamColor() == TeamColor.WHITE) {
             return potentialMoves.stream()
-                    .filter(this::moveDoesNotResultInCheck1)
+                    .filter(this::moveDoesNotResultInCheckWhite)
                     .collect(Collectors.toSet());
         }
 
         // Filter out moves that would result in a check
         return potentialMoves.stream()
-                .filter(this::moveDoesNotResultInCheck)
+                .filter(this::moveDoesNotResultInCheckBlack)
                 .collect(Collectors.toSet());
     }
 
 
-    private boolean moveDoesNotResultInCheck(ChessMove move) {
+    private boolean moveDoesNotResultInCheckBlack(ChessMove move) {
         // Create a deep copy of the board for simulation
         ChessBoard simulatedBoard = this.board.deepCopy();
 
@@ -95,7 +95,7 @@ public class ChessGame {
         return !isInCheckAfterMove;
     }
 
-    private boolean moveDoesNotResultInCheck1(ChessMove move) {
+    private boolean moveDoesNotResultInCheckWhite(ChessMove move) {
         // Create a deep copy of the board for simulation
         ChessBoard simulatedBoard = this.board.deepCopy();
 
