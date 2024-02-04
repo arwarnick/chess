@@ -67,12 +67,12 @@ public class ChessGame {
 
         // Filter out moves that would result in a check
         return potentialMoves.stream()
-                .filter(this::moveDoesNotResultInCheckBlack)
+                .filter(this::moveDoesNotResultInCheck)
                 .collect(Collectors.toSet());
     }
 
 
-    private boolean moveDoesNotResultInCheckBlack(ChessMove move) {
+    private boolean moveDoesNotResultInCheck(ChessMove move) {
         // Create a deep copy of the board for simulation
         ChessBoard simulatedBoard = this.board.deepCopy();
 
