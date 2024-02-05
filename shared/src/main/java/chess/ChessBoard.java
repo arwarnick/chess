@@ -25,6 +25,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        if (piece != null) {
+            piece.setPosition(position); // Update the piece's position
+        }
         // Convert the ChessPosition to array indices and place the piece.
         int row = position.getRow() - 1; // Assuming rows are 1-indexed.
         int col = position.getColumn() - 1; // Assuming columns are 1-indexed.

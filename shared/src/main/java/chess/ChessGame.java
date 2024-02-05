@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +59,24 @@ public class ChessGame {
 
         // Generate potential moves for the piece
         Collection<ChessMove> potentialMoves = piece.pieceMoves(board, startPosition);
+
+        // Castling logic for kings
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            // Attempt to add castling moves if the king has not moved
+            if (!piece.hasMoved()) {
+                // Check for king-side castling
+                ChessPosition kingSideEndPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + 2);
+                if (piece.isCastlingMove(board, kingSideEndPosition, this)) {
+                    potentialMoves.add(new ChessMove(startPosition, kingSideEndPosition, null));
+                }
+
+                // Check for queen-side castling
+                ChessPosition queenSideEndPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() - 2);
+                if (piece.isCastlingMove(board, queenSideEndPosition, this)) {
+                    potentialMoves.add(new ChessMove(startPosition, queenSideEndPosition, null));
+                }
+            }
+        }
 
         if (piece.getTeamColor() == TeamColor.WHITE) {
             return potentialMoves.stream()
@@ -131,6 +150,35 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position.");
         }
 
+        // Check if the move is a castling move for a king
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.isCastlingMove(board, move.getEndPosition(), this)) {
+            // Determine castling direction
+            int direction = move.getEndPosition().getColumn() - move.getStartPosition().getColumn();
+            boolean isKingSide = direction > 0;
+
+            // Calculate new positions for the rook
+            ChessPosition rookStartPosition = new ChessPosition(move.getStartPosition().getRow(), isKingSide ? 8 : 1);
+            ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(), isKingSide ? move.getEndPosition().getColumn() - 1 : move.getEndPosition().getColumn() + 1);
+
+            // Move the king
+            board.movePiece(move.getStartPosition(), move.getEndPosition());
+            piece.setHasMoved(true); // Indicate that the king has moved
+
+            // Find and move the rook
+            ChessPiece rook = board.getPiece(rookStartPosition);
+            if (rook != null && rook.getPieceType() == ChessPiece.PieceType.ROOK) {
+                board.movePiece(rookStartPosition, rookEndPosition);
+                rook.setHasMoved(true); // Indicate that the rook has moved
+            } else {
+                // If the rook isn't where expected, throw an exception or handle error
+                throw new InvalidMoveException("Rook not in correct position for castling.");
+            }
+
+            // Update turn
+            teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+            return; // Exit method to avoid executing the rest of the makeMove logic
+        }
+
         // Check if it's the correct team's turn
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("It's not " + piece.getTeamColor() + "'s turn.");
@@ -196,6 +244,11 @@ public class ChessGame {
         if (tempGame.isInCheck(this.teamTurn)) {
             throw new InvalidMoveException("Move would result in check");
         }
+
+        // Mark the piece as having moved
+        piece.setHasMoved(true);
+        piece.setPosition(move.getEndPosition()); // Update the piece's position
+
 
         // For now, simply move the piece
         board.addPiece(move.getEndPosition(), piece);
@@ -452,6 +505,28 @@ public class ChessGame {
         }
         return null;
     }
+
+    public boolean isPositionUnderAttack(ChessPosition position, TeamColor kingColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition attackerPosition = new ChessPosition(row, col);
+                ChessPiece attacker = board.getPiece(attackerPosition);
+                // Check if there's a piece, and it's of the opposite color to the king
+                if (attacker != null && attacker.getTeamColor() != kingColor) {
+                    // Generate potential moves for this piece
+                    Set<ChessMove> potentialMoves = (Set<ChessMove>) attacker.pieceMoves(board, attackerPosition);
+                    // Check if any move can attack the specified position
+                    for (ChessMove move : potentialMoves) {
+                        if (move.getEndPosition().equals(position)) {
+                            return true; // The position is under attack
+                        }
+                    }
+                }
+            }
+        }
+        return false; // No pieces can attack the specified position
+    }
+
 
     /**
      * Determines if the given team is in checkmate
