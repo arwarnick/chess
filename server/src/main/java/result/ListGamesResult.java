@@ -5,13 +5,13 @@ import model.GameData;
 import java.util.List;
 
 public class ListGamesResult {
-    private final List<GameInfo> games;
+    private final List<GameData> games;
 
     public ListGamesResult(List<GameData> games) {
         this.games = games;
     }
 
-    public List<GameInfo> getGames() {
+    public List<GameData> getGames() {
         return games;
     }
 

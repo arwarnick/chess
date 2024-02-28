@@ -9,7 +9,7 @@ public class LoginResult {
     // Constructor
     public LoginResult(String authToken, UserData username) {
         this.authToken = authToken;
-        this.username = username;
+        this.username = String.valueOf(username);
     }
 
     // Getters
