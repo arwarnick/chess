@@ -116,6 +116,31 @@ public class ChessPiece {
             }
         }
 
+        // Knight logic
+        if (this.getPieceType() == PieceType.KNIGHT) {
+            int[][] knightMoves = {
+                    {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, // Upwards L-shapes
+                    {1, -2}, {1, 2}, {2, -1}, {2, 1}      // Downwards L-shapes
+            };
+
+            for (int[] move : knightMoves) {
+                int newRow = myPosition.getRow() + move[0];
+                int newCol = myPosition.getColumn() + move[1];
+
+                // Check if new position is on the board
+                if (newRow > 0 && newRow <= 8 && newCol > 0 && newCol <= 8) {
+                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                    ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
+
+                    // Check if the position is either empty or occupied by an enemy piece
+                    if (pieceAtNewPosition == null || pieceAtNewPosition.getTeamColor() != this.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }
+        }
+
+
 
         return moves;
     }
