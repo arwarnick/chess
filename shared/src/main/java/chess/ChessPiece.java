@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -13,6 +11,7 @@ import java.util.Objects;
 public class ChessPiece {
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
+    private ChessPosition position;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -53,30 +52,50 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
+        Set<ChessMove> moves = new HashSet<>();
 
-        switch (type) {
-            case PAWN:
-                // Add pawn-specific movement logic
-                break;
-            case ROOK:
-                // Add rook-specific movement logic
-                break;
-            case KNIGHT:
-                // Add knight-specific movement logic
-                break;
-            case BISHOP:
-                // Add bishop-specific movement logic
-                break;
-            case QUEEN:
-                // Add queen-specific movement logic
-                break;
-            case KING:
-                // Add king-specific movement logic
-                break;
+        // Bishop logic
+        int[] bishopDirections = {-1, 1}; // Directions for diagonals: up-left, up-right, down-left, down-right
+        if (this.getPieceType() == PieceType.BISHOP) {
+            for (int rowDirection : bishopDirections) {
+                for (int colDirection : bishopDirections) {
+                    int currentRow = myPosition.getRow();
+                    int currentCol = myPosition.getColumn();
+
+                    // Check each diagonal direction
+                    while (true) {
+                        currentRow += rowDirection;
+                        currentCol += colDirection;
+
+                        // Check if the new position is valid
+                        if (currentRow <= 0 || currentRow > 8 || currentCol <= 0 || currentCol > 8) {
+                            break; // Move is outside of the board
+                        }
+
+                        ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
+                        ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
+
+                        // Check if there's a piece in the new position
+                        if (pieceAtNewPosition != null) {
+                            // If it's an enemy piece, we can capture it
+                            if (pieceAtNewPosition.getTeamColor() != this.getTeamColor()) {
+                                moves.add(new ChessMove(myPosition, newPosition, null));
+                            }
+                            break; // Cannot move past a piece, whether it's an ally or an enemy
+                        } else {
+                            // The space is empty, so it's a valid move
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
         }
 
         return moves;
+    }
+
+    public void setPosition(ChessPosition position) {
+        this.position = position;
     }
 
     @Override
