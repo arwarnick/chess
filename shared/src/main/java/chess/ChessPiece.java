@@ -91,6 +91,32 @@ public class ChessPiece {
             }
         }
 
+        // King logic
+        if (this.getPieceType() == PieceType.KING) {
+            int[][] kingDirections = {
+                    {-1, -1}, {-1, 0}, {-1, 1}, // Diagonally up and straight up
+                    {0, -1}, {0, 1},            // Left and right
+                    {1, -1}, {1, 0}, {1, 1}     // Diagonally down and straight down
+            };
+
+            for (int[] direction : kingDirections) {
+                int newRow = myPosition.getRow() + direction[0];
+                int newCol = myPosition.getColumn() + direction[1];
+
+                // Check if new position is on the board
+                if (newRow > 0 && newRow <= 8 && newCol > 0 && newCol <= 8) {
+                    ChessPosition newPosition = new ChessPosition(newRow, newCol);
+                    ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
+
+                    // Check if the position is either empty or occupied by an enemy piece
+                    if (pieceAtNewPosition == null || pieceAtNewPosition.getTeamColor() != this.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }
+        }
+
+
         return moves;
     }
 
