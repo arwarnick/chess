@@ -153,8 +153,13 @@ public class ChessPiece {
             addLinearMoves(moves, board, myPosition, 1, 1);   // Diagonal down-right
         }
 
-
-
+        // Rook logic
+        if (this.getPieceType() == PieceType.ROOK) {
+            addLinearMoves(moves, board, myPosition, -1, 0); // Vertical up
+            addLinearMoves(moves, board, myPosition, 1, 0);  // Vertical down
+            addLinearMoves(moves, board, myPosition, 0, -1); // Horizontal left
+            addLinearMoves(moves, board, myPosition, 0, 1);  // Horizontal right
+        }
 
         return moves;
     }
