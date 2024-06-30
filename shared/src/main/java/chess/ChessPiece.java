@@ -140,6 +140,20 @@ public class ChessPiece {
             }
         }
 
+        // Queen logic
+        if (this.getPieceType() == PieceType.QUEEN) {
+            // The queen combines the movement of the rook and bishop
+            addLinearMoves(moves, board, myPosition, -1, 0); // Vertical up
+            addLinearMoves(moves, board, myPosition, 1, 0);  // Vertical down
+            addLinearMoves(moves, board, myPosition, 0, -1); // Horizontal left
+            addLinearMoves(moves, board, myPosition, 0, 1);  // Horizontal right
+            addLinearMoves(moves, board, myPosition, -1, -1); // Diagonal up-left
+            addLinearMoves(moves, board, myPosition, -1, 1);  // Diagonal up-right
+            addLinearMoves(moves, board, myPosition, 1, -1);  // Diagonal down-left
+            addLinearMoves(moves, board, myPosition, 1, 1);   // Diagonal down-right
+        }
+
+
 
 
         return moves;
@@ -148,6 +162,33 @@ public class ChessPiece {
     public void setPosition(ChessPosition position) {
         this.position = position;
     }
+
+    private void addLinearMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection) {
+        int currentRow = startPosition.getRow();
+        int currentCol = startPosition.getColumn();
+
+        while (true) {
+            currentRow += rowDirection;
+            currentCol += colDirection;
+
+            if (currentRow <= 0 || currentRow > 8 || currentCol <= 0 || currentCol > 8) {
+                break; // Move is outside of the board
+            }
+
+            ChessPosition newPosition = new ChessPosition(currentRow, currentCol);
+            ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
+
+            if (pieceAtNewPosition != null) {
+                if (pieceAtNewPosition.getTeamColor() != this.getTeamColor()) {
+                    moves.add(new ChessMove(startPosition, newPosition, null)); // Can capture
+                }
+                break; // Blocked by a piece
+            } else {
+                moves.add(new ChessMove(startPosition, newPosition, null)); // Empty space
+            }
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
