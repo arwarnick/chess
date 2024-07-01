@@ -140,6 +140,36 @@ public class ChessPiece {
             }
         }
 
+        // Pawn logic
+        if (this.getPieceType() == PieceType.PAWN) {
+            int direction = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
+            int startRow = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 2 : 7;
+
+            // Check if the pawn is in the promotion row
+            if (isPawnPromotionRow(myPosition)) {
+                // Handle promotion moves only
+                handlePawnPromotion(moves, board, myPosition);
+            } else {
+                // Single square move
+                ChessPosition oneStep = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
+                if (isPositionValid(oneStep) && board.getPiece(oneStep) == null) {
+                    moves.add(new ChessMove(myPosition, oneStep, null));
+                }
+
+                // Double square move from start
+                if (myPosition.getRow() == startRow) {
+                    ChessPosition twoSteps = new ChessPosition(myPosition.getRow() + 2 * direction, myPosition.getColumn());
+                    if (isPositionValid(twoSteps) && board.getPiece(twoSteps) == null && board.getPiece(oneStep) == null) {
+                        moves.add(new ChessMove(myPosition, twoSteps, null));
+                    }
+                }
+
+                // Standard capture moves for pawn
+                addPawnCaptureMoves(moves, board, myPosition, false);
+            }
+        }
+
+
         // Queen logic
         if (this.getPieceType() == PieceType.QUEEN) {
             // The queen combines the movement of the rook and bishop
@@ -194,6 +224,55 @@ public class ChessPiece {
         }
     }
 
+    private boolean isPositionValid(ChessPosition position) {
+        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
+    }
+
+    private boolean isPawnPromotionRow(ChessPosition position) {
+        int promotionRow = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 8 : 1;
+        return position.getRow() == (this.getTeamColor() == ChessGame.TeamColor.WHITE ? 7 : 2);
+    }
+
+    private void handlePawnPromotion(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
+        int direction = getPawnDirection();
+        // Promotion position
+        ChessPosition promotionPosition = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
+        if (isPositionValid(promotionPosition) && board.getPiece(promotionPosition) == null) {
+            addPromotionMoves(moves, myPosition, promotionPosition);
+        }
+
+        // Capture and promote
+        addPawnCaptureMoves(moves, board, myPosition, true); // true indicates promotion
+    }
+
+    private int getPawnDirection() {
+        return (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
+    }
+
+    private void addPromotionMoves(Set<ChessMove> moves, ChessPosition startPosition, ChessPosition endPosition) {
+        // Add a move for each promotion type
+        moves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
+        moves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
+        moves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
+        moves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+    }
+
+    private void addPawnCaptureMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition, boolean isPromotion) {
+        int[] captureCols = {myPosition.getColumn() - 1, myPosition.getColumn() + 1};
+        for (int captureCol : captureCols) {
+            ChessPosition capturePos = new ChessPosition(myPosition.getRow() + getPawnDirection(), captureCol);
+            if (isPositionValid(capturePos)) {
+                ChessPiece capturedPiece = board.getPiece(capturePos);
+                if (capturedPiece != null && capturedPiece.getTeamColor() != this.getTeamColor()) {
+                    if (isPromotion) {
+                        addPromotionMoves(moves, myPosition, capturePos);
+                    } else {
+                        moves.add(new ChessMove(myPosition, capturePos, null));
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
