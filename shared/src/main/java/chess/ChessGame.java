@@ -188,6 +188,9 @@ public class ChessGame {
             case PAWN:
                 validatePawnMove(piece, move, board);
                 break;
+            case KNIGHT:
+                validateKnightMove(piece, move, board);
+                break;
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
@@ -296,6 +299,26 @@ public class ChessGame {
             } else if (move.getPromotionPiece() != null) {
                 throw new InvalidMoveException("Pawn promotion can only occur on the opposite end of the board");
             }
+        }
+    }
+
+    private void validateKnightMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
+        int rowDiff = Math.abs(endRow - startRow);
+        int colDiff = Math.abs(endColumn - startColumn);
+
+        // Check for the L-shape movement: 2 squares in one direction and 1 square in the other direction
+        if (!((rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2))) {
+            throw new InvalidMoveException("Invalid knight move: Knights must move in an L-shape.");
+        }
+
+        // Check if the end position is occupied by a piece of the same color
+        ChessPiece endPositionPiece = board.getPiece(move.getEndPosition());
+        if (endPositionPiece != null && endPositionPiece.getTeamColor() == piece.getTeamColor()) {
+            throw new InvalidMoveException("Invalid knight move: Cannot capture your own piece.");
         }
     }
 
