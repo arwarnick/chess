@@ -191,6 +191,9 @@ public class ChessGame {
             case KNIGHT:
                 validateKnightMove(piece, move, board);
                 break;
+            case BISHOP:
+                validateBishopMove(piece, move, board);
+                break;
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
@@ -321,6 +324,40 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid knight move: Cannot capture your own piece.");
         }
     }
+
+    private void validateBishopMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
+
+        // Bishops move diagonally, so the absolute difference between the row and column must be equal
+        if (Math.abs(endRow - startRow) != Math.abs(endColumn - startColumn)) {
+            throw new InvalidMoveException("Invalid bishop move: Bishops must move diagonally.");
+        }
+
+        // Check if the path is clear (no pieces between start and end positions)
+        int rowDirection = Integer.signum(endRow - startRow);
+        int columnDirection = Integer.signum(endColumn - startColumn);
+
+        int currentRow = startRow + rowDirection;
+        int currentColumn = startColumn + columnDirection;
+
+        while (currentRow != endRow && currentColumn != endColumn) {
+            if (board.getPiece(new ChessPosition(currentRow, currentColumn)) != null) {
+                throw new InvalidMoveException("Invalid bishop move: Path is blocked.");
+            }
+            currentRow += rowDirection;
+            currentColumn += columnDirection;
+        }
+
+        // Check if the end position is occupied by a piece of the same color
+        ChessPiece endPositionPiece = board.getPiece(move.getEndPosition());
+        if (endPositionPiece != null && endPositionPiece.getTeamColor() == piece.getTeamColor()) {
+            throw new InvalidMoveException("Invalid bishop move: Cannot capture your own piece.");
+        }
+    }
+
 
 
     /**
