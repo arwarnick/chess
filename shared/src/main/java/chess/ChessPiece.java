@@ -9,9 +9,13 @@ import java.util.*;
  * signature of the existing methods.
  */
 public class ChessPiece {
+
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
-    private ChessPosition position;
+    private boolean hasMoved = false; // Field to track if the piece has moved
+    private ChessPosition position; // Add this line to store the piece's position
+
+
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -42,6 +46,21 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return type;
+    }
+
+    // Method to mark the piece as having moved
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
+
+    public void setPosition(ChessPosition position) {
+        this.position = position;
+    }
+
+
+    // Method to check if the piece has moved
+    public boolean hasMoved() {
+        return hasMoved;
     }
 
     /**
@@ -169,7 +188,6 @@ public class ChessPiece {
             }
         }
 
-
         // Queen logic
         if (this.getPieceType() == PieceType.QUEEN) {
             // The queen combines the movement of the rook and bishop
@@ -192,10 +210,6 @@ public class ChessPiece {
         }
 
         return moves;
-    }
-
-    public void setPosition(ChessPosition position) {
-        this.position = position;
     }
 
     private void addLinearMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection) {
@@ -228,11 +242,6 @@ public class ChessPiece {
         return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 
-    private boolean isPawnPromotionRow(ChessPosition position) {
-        int promotionRow = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 8 : 1;
-        return position.getRow() == (this.getTeamColor() == ChessGame.TeamColor.WHITE ? 7 : 2);
-    }
-
     private void handlePawnPromotion(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
         int direction = getPawnDirection();
         // Promotion position
@@ -245,16 +254,21 @@ public class ChessPiece {
         addPawnCaptureMoves(moves, board, myPosition, true); // true indicates promotion
     }
 
-    private int getPawnDirection() {
-        return (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
-    }
-
     private void addPromotionMoves(Set<ChessMove> moves, ChessPosition startPosition, ChessPosition endPosition) {
         // Add a move for each promotion type
         moves.add(new ChessMove(startPosition, endPosition, PieceType.QUEEN));
         moves.add(new ChessMove(startPosition, endPosition, PieceType.ROOK));
         moves.add(new ChessMove(startPosition, endPosition, PieceType.BISHOP));
         moves.add(new ChessMove(startPosition, endPosition, PieceType.KNIGHT));
+    }
+
+    private boolean isPawnPromotionRow(ChessPosition position) {
+        int promotionRow = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 8 : 1;
+        return position.getRow() == (this.getTeamColor() == ChessGame.TeamColor.WHITE ? 7 : 2);
+    }
+
+    private int getPawnDirection() {
+        return (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
     }
 
     private void addPawnCaptureMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition, boolean isPromotion) {
@@ -274,24 +288,62 @@ public class ChessPiece {
         }
     }
 
+    public boolean isCastlingMove(ChessBoard board, ChessPosition endPosition, ChessGame game) {
+        // Ensure this is called for a king
+        if (this.getPieceType() != PieceType.KING || this.hasMoved()) {
+            return false;
+        }
+
+        // Calculate direction and distance for castling
+        int direction = endPosition.getColumn() - this.position.getColumn();
+        if (Math.abs(direction) != 2) return false; // Castling moves the king two squares
+
+        ChessGame.TeamColor kingColor = this.getTeamColor();
+        int row = kingColor == ChessGame.TeamColor.WHITE ? 1 : 8;
+        ChessPosition passingSquare = new ChessPosition(row, this.position.getColumn() + direction / 2);
+        ChessPosition startingPosition = this.position;
+
+        // Check if starting, passing, and ending positions are safe
+        if (game.isPositionUnderAttack(startingPosition, kingColor) ||
+                game.isPositionUnderAttack(passingSquare, kingColor) ||
+                game.isPositionUnderAttack(endPosition, kingColor)) {
+            return false;
+        }
+
+        // Determine rook's starting position for castling
+        ChessPosition rookPosition = direction > 0 ? new ChessPosition(row, 8) : new ChessPosition(row, 1); // King-side or Queen-side
+        ChessPiece rook = board.getPiece(rookPosition);
+
+        // Check if the rook has not moved and exists
+        if (rook == null || rook.hasMoved() || rook.getPieceType() != PieceType.ROOK) {
+            return false;
+        }
+
+        // Check for a clear path between the king and the rook
+        int step = direction > 0 ? 1 : -1; // Determine step direction for iterating through columns
+        for (int col = this.position.getColumn() + step; col != rookPosition.getColumn(); col += step) {
+            ChessPosition intermediatePosition = new ChessPosition(row, col);
+            if (board.getPiece(intermediatePosition) != null) {
+                return false; // Path is not clear
+            }
+        }
+
+        return true; // All conditions for castling are met
+    }
+
+
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        ChessPiece other = (ChessPiece) obj;
+        return pieceColor == other.pieceColor && type == other.type;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(pieceColor, type);
-    }
-
-    @Override
-    public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
     }
 }
