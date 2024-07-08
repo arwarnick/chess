@@ -141,8 +141,164 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        // Retrieve the piece at the start position
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        // Check if there is a piece at the start position
+        if (piece == null) {
+            throw new InvalidMoveException("No piece at start position.");
+        }
+
+        // Check if the move is a castling move for a king
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.isCastlingMove(board, move.getEndPosition(), this)) {
+            // Determine castling direction
+            int direction = move.getEndPosition().getColumn() - move.getStartPosition().getColumn();
+            boolean isKingSide = direction > 0;
+
+            // Calculate new positions for the rook
+            ChessPosition rookStartPosition = new ChessPosition(move.getStartPosition().getRow(), isKingSide ? 8 : 1);
+            ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(), isKingSide ? move.getEndPosition().getColumn() - 1 : move.getEndPosition().getColumn() + 1);
+
+            // Move the king
+            board.movePiece(move.getStartPosition(), move.getEndPosition());
+            piece.setHasMoved(true); // Indicate that the king has moved
+
+            // Find and move the rook
+            ChessPiece rook = board.getPiece(rookStartPosition);
+            if (rook != null && rook.getPieceType() == ChessPiece.PieceType.ROOK) {
+                board.movePiece(rookStartPosition, rookEndPosition);
+                rook.setHasMoved(true); // Indicate that the rook has moved
+            } else {
+                // If the rook isn't where expected, throw an exception or handle error
+                throw new InvalidMoveException("Rook not in correct position for castling.");
+            }
+
+            // Update turn
+            teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+            return; // Exit method to avoid executing the rest of the makeMove logic
+        }
+
+        // Check if it's the correct team's turn
+        if (piece.getTeamColor() != teamTurn) {
+            throw new InvalidMoveException("It's not " + piece.getTeamColor() + "'s turn.");
+        }
+
+        // Validate the move based on piece type
+        switch (piece.getPieceType()) {
+            case PAWN:
+                validatePawnMove(piece, move, board);
+                break;
+            default:
+                throw new InvalidMoveException("Invalid piece type");
+        }
+
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int promotionRow = piece.getTeamColor() == TeamColor.WHITE ? 8 : 1;
+            if (move.getEndPosition().getRow() == promotionRow) {
+                // Perform promotion
+                if (move.getPromotionPiece() != null) {
+                    // Replace pawn with new piece of specified type and same color
+                    piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+                } else {
+                    throw new InvalidMoveException("Promotion piece type must be specified.");
+                }
+            }
+        }
+
+        // Check if the end position is within the board limits
+        if (!isValidPosition(move.getEndPosition())) {
+            throw new InvalidMoveException("Invalid end position.");
+        }
+
+        // Assume the move is valid and proceed with further validations as needed
+        // This includes checking for checks, valid paths, etc., which will implement later
+
+
+        // Simulate the move
+        ChessBoard simulatedBoard = this.board.deepCopy();
+        simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
+        simulatedBoard.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
+
+        // Set up a temporary ChessGame to check the state after the move
+        ChessGame tempGame = new ChessGame();
+        tempGame.setBoard(simulatedBoard);
+        tempGame.setTeamTurn(this.teamTurn); // Assume the turn doesn't change for the simulation
+
+        // Check if the move places or leaves the king in check
+        if (tempGame.isInCheck(this.teamTurn)) {
+            throw new InvalidMoveException("Move would result in check");
+        }
+
+        // Mark the piece as having moved
+        piece.setHasMoved(true);
+        piece.setPosition(move.getEndPosition()); // Update the piece's position
+
+
+        // For now, simply move the piece
+        board.addPiece(move.getEndPosition(), piece);
+        board.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
+
+        // Switch turns
+        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
+
+    private boolean isValidPosition(ChessPosition position) {
+        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
+    }
+
+    private void validatePawnMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
+        int rowDiff = endRow - startRow;
+        int colDiff = Math.abs(endColumn - startColumn);
+
+        // Determine the direction based on the pawn's color
+        int direction = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+
+        // Check for standard move
+        if (colDiff == 0 && ((direction == 1 && rowDiff == 1) || (direction == -1 && rowDiff == -1))) {
+            // Move one square forward
+            if (board.getPiece(move.getEndPosition()) != null) {
+                throw new InvalidMoveException("Cannot move forward into occupied square");
+            }
+        } else if (colDiff == 0 && rowDiff == 2 * direction) {
+            // Move two squares forward from the starting position
+            if (!((startRow == 2 && piece.getTeamColor() == ChessGame.TeamColor.WHITE) ||
+                    (startRow == 7 && piece.getTeamColor() == ChessGame.TeamColor.BLACK))) {
+                throw new InvalidMoveException("Pawn can only move two squares forward from its starting position");
+            }
+            // Ensure path is clear
+            if (board.getPiece(move.getEndPosition()) != null ||
+                    board.getPiece(new ChessPosition(startRow + direction, startColumn)) != null) {
+                throw new InvalidMoveException("Path is blocked for two square pawn move");
+            }
+        } else if (colDiff == 1 && Math.abs(rowDiff) == 1) {
+            // Capture or en passant
+            ChessPiece targetPiece = board.getPiece(move.getEndPosition());
+            if (targetPiece == null || targetPiece.getTeamColor() == piece.getTeamColor()) {
+                // Check for en passant conditions here if applicable, throw exception if not valid
+                throw new InvalidMoveException("Invalid pawn capture move");
+            }
+        } else {
+            // Not a valid pawn move
+            throw new InvalidMoveException("Invalid pawn move");
+        }
+
+        // Check for promotion
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                    (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endRow == 1)) {
+                if (move.getPromotionPiece() == null) {
+                    throw new InvalidMoveException("Pawn promotion must specify the piece to promote to");
+                }
+            } else if (move.getPromotionPiece() != null) {
+                throw new InvalidMoveException("Pawn promotion can only occur on the opposite end of the board");
+            }
+        }
+    }
+
 
     /**
      * Determines if the given team is in check
