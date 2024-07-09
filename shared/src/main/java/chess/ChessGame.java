@@ -194,6 +194,9 @@ public class ChessGame {
             case BISHOP:
                 validateBishopMove(piece, move, board);
                 break;
+            case ROOK:
+                validateRookMove(piece, move, board);
+                break;
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
@@ -357,6 +360,40 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid bishop move: Cannot capture your own piece.");
         }
     }
+
+    private void validateRookMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
+
+        // Rooks move either horizontally or vertically, so either the row or the column must remain constant
+        if (!((startRow == endRow) ^ (startColumn == endColumn))) {
+            throw new InvalidMoveException("Invalid rook move: Rooks must move in a straight line either horizontally or vertically.");
+        }
+
+        // Determine the direction of the move
+        int rowDirection = Integer.signum(endRow - startRow);
+        int columnDirection = Integer.signum(endColumn - startColumn);
+
+        // Check if the path is clear (no pieces between start and end positions)
+        int currentRow = startRow + rowDirection;
+        int currentColumn = startColumn + columnDirection;
+        while ((currentRow != endRow || currentColumn != endColumn) && (currentRow >= 1 && currentRow <= 8 && currentColumn >= 1 && currentColumn <= 8)) {
+            if (board.getPiece(new ChessPosition(currentRow, currentColumn)) != null) {
+                throw new InvalidMoveException("Invalid rook move: Path is blocked.");
+            }
+            currentRow += rowDirection;
+            currentColumn += columnDirection;
+        }
+
+        // Check if the end position is occupied by a piece of the same color
+        ChessPiece endPositionPiece = board.getPiece(move.getEndPosition());
+        if (endPositionPiece != null && endPositionPiece.getTeamColor() == piece.getTeamColor()) {
+            throw new InvalidMoveException("Invalid rook move: Cannot capture your own piece.");
+        }
+    }
+
 
 
 
