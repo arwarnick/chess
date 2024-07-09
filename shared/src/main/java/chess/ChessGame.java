@@ -200,6 +200,9 @@ public class ChessGame {
             case QUEEN:
                 validateQueenMove(piece, move, board);
                 break;
+            case KING:
+                validateKingMove(piece, move, board);
+                break;
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
@@ -432,9 +435,27 @@ public class ChessGame {
         }
     }
 
+    private void validateKingMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
 
+        // Calculate the difference in rows and columns to determine the move's legality
+        int rowDifference = Math.abs(endRow - startRow);
+        int columnDifference = Math.abs(endColumn - startColumn);
 
+        // King can only move one square in any direction
+        if (rowDifference > 1 || columnDifference > 1) {
+            throw new InvalidMoveException("Invalid king move: King can move only one square in any direction.");
+        }
 
+        // Ensure the destination is not occupied by a friendly piece
+        ChessPiece destinationPiece = board.getPiece(move.getEndPosition());
+        if (destinationPiece != null && destinationPiece.getTeamColor() == piece.getTeamColor()) {
+            throw new InvalidMoveException("Invalid king move: Cannot capture your own piece.");
+        }
+    }
 
     /**
      * Determines if the given team is in check
