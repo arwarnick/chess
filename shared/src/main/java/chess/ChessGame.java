@@ -18,6 +18,8 @@ public class ChessGame {
 
     public ChessGame() {
         this.board = new ChessBoard();
+        this.board.resetBoard();
+        this.teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -89,6 +91,7 @@ public class ChessGame {
                 .filter(this::moveDoesNotResultInCheck)
                 .collect(Collectors.toSet());
     }
+
 
     private boolean moveDoesNotResultInCheck(ChessMove move) {
         // Create a deep copy of the board for simulation
@@ -225,10 +228,6 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid end position.");
         }
 
-        // Assume the move is valid and proceed with further validations as needed
-        // This includes checking for checks, valid paths, etc., which will implement later
-
-
         // Simulate the move
         ChessBoard simulatedBoard = this.board.deepCopy();
         simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
@@ -255,10 +254,6 @@ public class ChessGame {
 
         // Switch turns
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-    }
-
-    private boolean isValidPosition(ChessPosition position) {
-        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
     }
 
     private void validatePawnMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
@@ -314,6 +309,7 @@ public class ChessGame {
         }
     }
 
+
     private void validateKnightMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
         int startRow = move.getStartPosition().getRow();
         int startColumn = move.getStartPosition().getColumn();
@@ -366,6 +362,7 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid bishop move: Cannot capture your own piece.");
         }
     }
+
 
     private void validateRookMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
         int startRow = move.getStartPosition().getRow();
@@ -457,6 +454,10 @@ public class ChessGame {
         }
     }
 
+    private boolean isValidPosition(ChessPosition position) {
+        return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >= 1 && position.getColumn() <= 8;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -499,6 +500,28 @@ public class ChessGame {
         }
         return null;
     }
+
+    public boolean isPositionUnderAttack(ChessPosition position, TeamColor kingColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition attackerPosition = new ChessPosition(row, col);
+                ChessPiece attacker = board.getPiece(attackerPosition);
+                // Check if there's a piece, and it's of the opposite color to the king
+                if (attacker != null && attacker.getTeamColor() != kingColor) {
+                    // Generate potential moves for this piece
+                    Set<ChessMove> potentialMoves = (Set<ChessMove>) attacker.pieceMoves(board, attackerPosition);
+                    // Check if any move can attack the specified position
+                    for (ChessMove move : potentialMoves) {
+                        if (move.getEndPosition().equals(position)) {
+                            return true; // The position is under attack
+                        }
+                    }
+                }
+            }
+        }
+        return false; // No pieces can attack the specified position
+    }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -545,26 +568,6 @@ public class ChessGame {
         return tempGame.isInCheck(this.teamTurn);
     }
 
-    public boolean isPositionUnderAttack(ChessPosition position, TeamColor kingColor) {
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition attackerPosition = new ChessPosition(row, col);
-                ChessPiece attacker = board.getPiece(attackerPosition);
-                // Check if there's a piece, and it's of the opposite color to the king
-                if (attacker != null && attacker.getTeamColor() != kingColor) {
-                    // Generate potential moves for this piece
-                    Set<ChessMove> potentialMoves = (Set<ChessMove>) attacker.pieceMoves(board, attackerPosition);
-                    // Check if any move can attack the specified position
-                    for (ChessMove move : potentialMoves) {
-                        if (move.getEndPosition().equals(position)) {
-                            return true; // The position is under attack
-                        }
-                    }
-                }
-            }
-        }
-        return false; // No pieces can attack the specified position
-    }
 
 
     /**

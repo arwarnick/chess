@@ -128,4 +128,35 @@ public class ChessBoard {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int row = 7; row >= 0; row--) {
+            sb.append(row + 1).append(" ");
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = board[row][col];
+                if (piece == null) {
+                    sb.append("- ");
+                } else {
+                    sb.append(pieceToChar(piece)).append(" ");
+                }
+            }
+            sb.append("\n");
+        }
+        sb.append("  a b c d e f g h");
+        return sb.toString();
+    }
+
+    private char pieceToChar(ChessPiece piece) {
+        char c = switch (piece.getPieceType()) {
+            case KING -> 'K';
+            case QUEEN -> 'Q';
+            case BISHOP -> 'B';
+            case KNIGHT -> 'N';
+            case ROOK -> 'R';
+            case PAWN -> 'P';
+        };
+        return piece.getTeamColor() == ChessGame.TeamColor.WHITE ? c : Character.toLowerCase(c);
+    }
 }
