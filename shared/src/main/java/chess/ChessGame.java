@@ -15,11 +15,20 @@ public class ChessGame {
 
     private TeamColor teamTurn = TeamColor.WHITE; // Default to white's turn at the start
     private ChessBoard board;
+    private ChessMove lastMove;
 
     public ChessGame() {
         this.board = new ChessBoard();
         this.board.resetBoard();
         this.teamTurn = TeamColor.WHITE;
+    }
+
+    public void setLastMove(ChessMove move) {
+        this.lastMove = move;
+    }
+
+    public ChessMove getLastMove() {
+        return this.lastMove;
     }
 
     /**
@@ -152,6 +161,15 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position.");
         }
 
+        System.out.println("Attempting move: " + move.getStartPosition() + " to " + move.getEndPosition());
+        System.out.println("Piece: " + piece.getPieceType() + " (" + piece.getTeamColor() + ")");
+
+        boolean enPassantExecuted = false;
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            System.out.println("Checking for En Passant...");
+            enPassantExecuted = handleEnPassant(piece, move);
+        }
+
         // Check if the move is a castling move for a king
         if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.isCastlingMove(board, move.getEndPosition(), this)) {
             // Determine castling direction
@@ -181,6 +199,86 @@ public class ChessGame {
             return; // Exit method to avoid executing the rest of the makeMove logic
         }
 
+        // Check if the end position is within the board limits
+        if (!isValidPosition(move.getEndPosition())) {
+            throw new InvalidMoveException("Invalid end position.");
+        }
+
+        // Simulate the move
+        ChessBoard simulatedBoard = this.board.deepCopy();
+        simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
+        simulatedBoard.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
+
+        // Set up a temporary ChessGame to check the state after the move
+        ChessGame tempGame = new ChessGame();
+        tempGame.setBoard(simulatedBoard);
+        tempGame.setTeamTurn(this.teamTurn); // Assume the turn doesn't change for the simulation
+
+        // Check if the move places or leaves the king in check
+        if (tempGame.isInCheck(this.teamTurn)) {
+            throw new InvalidMoveException("Move would result in check");
+        }
+
+        // Mark the piece as having moved
+        piece.setHasMoved(true);
+        piece.setPosition(move.getEndPosition()); // Update the piece's position
+
+        // Debug: Check board state before moving
+        System.out.println("Board state before move:");
+        printBoardState();
+
+        if (!enPassantExecuted) {
+            // Perform regular move validation only if it's not an En Passant capture
+            validateMove(piece, move);
+
+            // Debug: Check board state before moving
+            System.out.println("Board state before move:");
+            printBoardState();
+
+            // Move the piece
+            board.addPiece(move.getEndPosition(), piece);
+            board.addPiece(move.getStartPosition(), null);
+
+            // Debug: Check board state after moving
+            System.out.println("Board state after move:");
+            printBoardState();
+        }
+
+
+        // Debug: Check board state after moving
+        System.out.println("Board state after move:");
+        printBoardState();
+
+        // Debug: Check if the piece was moved successfully
+        ChessPiece movedPiece = board.getPiece(move.getEndPosition());
+        if (movedPiece == null) {
+            System.out.println("WARNING: Piece not found at destination after move: " + move.getEndPosition());
+        } else {
+            System.out.println("Piece successfully moved to: " + move.getEndPosition());
+        }
+
+        // Handle pawn promotion
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            int promotionRow = piece.getTeamColor() == TeamColor.WHITE ? 8 : 1;
+            if (move.getEndPosition().getRow() == promotionRow) {
+                if (move.getPromotionPiece() != null) {
+                    board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+                    System.out.println("Pawn promoted to: " + move.getPromotionPiece());
+                } else {
+                    throw new InvalidMoveException("Promotion piece type must be specified.");
+                }
+            }
+        }
+
+        // Update the last move
+        setLastMove(move);
+
+        // Switch turns
+        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        System.out.println("Turn switched to: " + teamTurn);
+    }
+
+    private void validateMove(ChessPiece piece, ChessMove move) throws InvalidMoveException {
         // Check if it's the correct team's turn
         if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("It's not " + piece.getTeamColor() + "'s turn.");
@@ -209,51 +307,95 @@ public class ChessGame {
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
+    }
 
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            int promotionRow = piece.getTeamColor() == TeamColor.WHITE ? 8 : 1;
-            if (move.getEndPosition().getRow() == promotionRow) {
-                // Perform promotion
-                if (move.getPromotionPiece() != null) {
-                    // Replace pawn with new piece of specified type and same color
-                    piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+    private void printBoardState() {
+        for (int row = 8; row >= 1; row--) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                if (piece == null) {
+                    System.out.print("- ");
                 } else {
-                    throw new InvalidMoveException("Promotion piece type must be specified.");
+                    System.out.print(pieceToChar(piece) + " ");
                 }
             }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private char pieceToChar(ChessPiece piece) {
+        char c = switch (piece.getPieceType()) {
+            case KING -> 'K';
+            case QUEEN -> 'Q';
+            case BISHOP -> 'B';
+            case KNIGHT -> 'N';
+            case ROOK -> 'R';
+            case PAWN -> 'P';
+        };
+        return piece.getTeamColor() == TeamColor.WHITE ? c : Character.toLowerCase(c);
+    }
+
+    private boolean handleEnPassant(ChessPiece piece, ChessMove move) {
+        if (lastMove == null) {
+            System.out.println("No last move available for En Passant check.");
+            return false;
         }
 
-        // Check if the end position is within the board limits
-        if (!isValidPosition(move.getEndPosition())) {
-            throw new InvalidMoveException("Invalid end position.");
+        ChessPosition lastMoveEnd = lastMove.getEndPosition();
+        ChessPosition currentMoveEnd = move.getEndPosition();
+
+        if (lastMoveEnd.getColumn() != currentMoveEnd.getColumn()) {
+            System.out.println("Not an En Passant move: columns don't match.");
+            return false;
         }
 
-        // Simulate the move
-        ChessBoard simulatedBoard = this.board.deepCopy();
-        simulatedBoard.addPiece(move.getEndPosition(), simulatedBoard.getPiece(move.getStartPosition()));
-        simulatedBoard.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
-
-        // Set up a temporary ChessGame to check the state after the move
-        ChessGame tempGame = new ChessGame();
-        tempGame.setBoard(simulatedBoard);
-        tempGame.setTeamTurn(this.teamTurn); // Assume the turn doesn't change for the simulation
-
-        // Check if the move places or leaves the king in check
-        if (tempGame.isInCheck(this.teamTurn)) {
-            throw new InvalidMoveException("Move would result in check");
+        if (board.getPiece(currentMoveEnd) != null) {
+            System.out.println("Not an En Passant move: destination is not empty.");
+            return false;
         }
 
-        // Mark the piece as having moved
-        piece.setHasMoved(true);
-        piece.setPosition(move.getEndPosition()); // Update the piece's position
+        ChessPiece lastMovedPiece = board.getPiece(lastMoveEnd);
+        if (lastMovedPiece == null) {
+            System.out.println("Last moved piece is null. This shouldn't happen.");
+            return false;
+        }
 
+        if (lastMovedPiece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            System.out.println("Last moved piece is not a pawn. Not an En Passant move.");
+            return false;
+        }
 
-        // For now, simply move the piece
-        board.addPiece(move.getEndPosition(), piece);
-        board.addPiece(move.getStartPosition(), null); // Remove the piece from the start position
+        if (Math.abs(lastMove.getStartPosition().getRow() - lastMoveEnd.getRow()) != 2) {
+            System.out.println("Last move was not a double step. Not an En Passant move.");
+            return false;
+        }
 
-        // Switch turns
-        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+        // Calculate the position of the captured pawn
+        int capturedPawnRow = (piece.getTeamColor() == TeamColor.WHITE) ? currentMoveEnd.getRow() - 1 : currentMoveEnd.getRow() + 1;
+        ChessPosition capturedPawnPosition = new ChessPosition(capturedPawnRow, currentMoveEnd.getColumn());
+
+        // Remove the captured pawn
+        ChessPiece capturedPawn = board.getPiece(capturedPawnPosition);
+        if (capturedPawn == null) {
+            System.out.println("No pawn found at the expected capture position: " + capturedPawnPosition);
+            return false;
+        }
+
+        System.out.println("Executing En Passant capture. Removing pawn at " + capturedPawnPosition);
+        board.addPiece(capturedPawnPosition, null);
+
+        // Move the capturing pawn
+        board.addPiece(currentMoveEnd, piece);
+        board.addPiece(move.getStartPosition(), null);
+
+        System.out.println("En Passant capture complete. Capturing pawn moved to " + currentMoveEnd);
+
+        // Print board state after En Passant
+        System.out.println("Board state after En Passant:");
+        printBoardState();
+
+        return true;
     }
 
     private void validatePawnMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
@@ -287,9 +429,19 @@ public class ChessGame {
         } else if (colDiff == 1 && Math.abs(rowDiff) == 1) {
             // Capture or en passant
             ChessPiece targetPiece = board.getPiece(move.getEndPosition());
-            if (targetPiece == null || targetPiece.getTeamColor() == piece.getTeamColor()) {
-                // Check for en passant conditions here if applicable, throw exception if not valid
-                throw new InvalidMoveException("Invalid pawn capture move");
+            if (targetPiece == null) {
+                // Check for en passant
+                if (lastMove != null &&
+                        lastMove.getEndPosition().getColumn() == move.getEndPosition().getColumn() &&
+                        lastMove.getEndPosition().getRow() == (piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 5 : 4) &&
+                        board.getPiece(lastMove.getEndPosition()).getPieceType() == ChessPiece.PieceType.PAWN &&
+                        Math.abs(lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) == 2) {
+                    // Valid en passant
+                } else {
+                    throw new InvalidMoveException("Invalid pawn capture move");
+                }
+            } else if (targetPiece.getTeamColor() == piece.getTeamColor()) {
+                throw new InvalidMoveException("Cannot capture your own piece");
             }
         } else {
             // Not a valid pawn move
