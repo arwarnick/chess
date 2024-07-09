@@ -197,6 +197,9 @@ public class ChessGame {
             case ROOK:
                 validateRookMove(piece, move, board);
                 break;
+            case QUEEN:
+                validateQueenMove(piece, move, board);
+                break;
             default:
                 throw new InvalidMoveException("Invalid piece type");
         }
@@ -393,6 +396,42 @@ public class ChessGame {
             throw new InvalidMoveException("Invalid rook move: Cannot capture your own piece.");
         }
     }
+
+    private void validateQueenMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
+        int startRow = move.getStartPosition().getRow();
+        int startColumn = move.getStartPosition().getColumn();
+        int endRow = move.getEndPosition().getRow();
+        int endColumn = move.getEndPosition().getColumn();
+
+        // The queen can move like both a rook and a bishop
+        boolean isDiagonalMove = Math.abs(endRow - startRow) == Math.abs(endColumn - startColumn);
+        boolean isStraightMove = startRow == endRow || startColumn == endColumn;
+
+        if (!isDiagonalMove && !isStraightMove) {
+            throw new InvalidMoveException("Invalid queen move: Queen must move in a straight line or diagonally.");
+        }
+
+        int rowDirection = Integer.signum(endRow - startRow);
+        int columnDirection = Integer.signum(endColumn - startColumn);
+
+        // Iterate through the path to ensure it's clear
+        int currentRow = startRow + rowDirection;
+        int currentColumn = startColumn + columnDirection;
+        while ((currentRow != endRow || currentColumn != endColumn) && (currentRow >= 1 && currentRow <= 8 && currentColumn >= 1 && currentColumn <= 8)) {
+            if (board.getPiece(new ChessPosition(currentRow, currentColumn)) != null) {
+                throw new InvalidMoveException("Invalid queen move: Path is blocked.");
+            }
+            currentRow += rowDirection;
+            currentColumn += columnDirection;
+        }
+
+        // Check if the end position is occupied by a piece of the same color
+        ChessPiece endPositionPiece = board.getPiece(move.getEndPosition());
+        if (endPositionPiece != null && endPositionPiece.getTeamColor() == piece.getTeamColor()) {
+            throw new InvalidMoveException("Invalid queen move: Cannot capture your own piece.");
+        }
+    }
+
 
 
 
