@@ -161,12 +161,8 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at start position.");
         }
 
-        System.out.println("Attempting move: " + move.getStartPosition() + " to " + move.getEndPosition());
-        System.out.println("Piece: " + piece.getPieceType() + " (" + piece.getTeamColor() + ")");
-
         boolean enPassantExecuted = false;
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            System.out.println("Checking for En Passant...");
             enPassantExecuted = handleEnPassant(piece, move);
         }
 
@@ -223,38 +219,13 @@ public class ChessGame {
         piece.setHasMoved(true);
         piece.setPosition(move.getEndPosition()); // Update the piece's position
 
-        // Debug: Check board state before moving
-        System.out.println("Board state before move:");
-        printBoardState();
-
         if (!enPassantExecuted) {
             // Perform regular move validation only if it's not an En Passant capture
             validateMove(piece, move);
 
-            // Debug: Check board state before moving
-            System.out.println("Board state before move:");
-            printBoardState();
-
             // Move the piece
             board.addPiece(move.getEndPosition(), piece);
             board.addPiece(move.getStartPosition(), null);
-
-            // Debug: Check board state after moving
-            System.out.println("Board state after move:");
-            printBoardState();
-        }
-
-
-        // Debug: Check board state after moving
-        System.out.println("Board state after move:");
-        printBoardState();
-
-        // Debug: Check if the piece was moved successfully
-        ChessPiece movedPiece = board.getPiece(move.getEndPosition());
-        if (movedPiece == null) {
-            System.out.println("WARNING: Piece not found at destination after move: " + move.getEndPosition());
-        } else {
-            System.out.println("Piece successfully moved to: " + move.getEndPosition());
         }
 
         // Handle pawn promotion
@@ -263,7 +234,6 @@ public class ChessGame {
             if (move.getEndPosition().getRow() == promotionRow) {
                 if (move.getPromotionPiece() != null) {
                     board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
-                    System.out.println("Pawn promoted to: " + move.getPromotionPiece());
                 } else {
                     throw new InvalidMoveException("Promotion piece type must be specified.");
                 }
@@ -276,7 +246,6 @@ public class ChessGame {
 
         // Switch turns
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-        System.out.println("Turn switched to: " + teamTurn);
     }
 
     private void validateMove(ChessPiece piece, ChessMove move) throws InvalidMoveException {
@@ -310,67 +279,13 @@ public class ChessGame {
         }
     }
 
-    private void printBoardState() {
-        for (int row = 8; row >= 1; row--) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece == null) {
-                    System.out.print("- ");
-                } else {
-                    System.out.print(pieceToChar(piece) + " ");
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    private char pieceToChar(ChessPiece piece) {
-        char c = switch (piece.getPieceType()) {
-            case KING -> 'K';
-            case QUEEN -> 'Q';
-            case BISHOP -> 'B';
-            case KNIGHT -> 'N';
-            case ROOK -> 'R';
-            case PAWN -> 'P';
-        };
-        return piece.getTeamColor() == TeamColor.WHITE ? c : Character.toLowerCase(c);
-    }
-
     private boolean handleEnPassant(ChessPiece piece, ChessMove move) {
         if (lastMove == null) {
-            System.out.println("No last move available for En Passant check.");
             return false;
         }
 
         ChessPosition lastMoveEnd = lastMove.getEndPosition();
         ChessPosition currentMoveEnd = move.getEndPosition();
-
-        if (lastMoveEnd.getColumn() != currentMoveEnd.getColumn()) {
-            System.out.println("Not an En Passant move: columns don't match.");
-            return false;
-        }
-
-        if (board.getPiece(currentMoveEnd) != null) {
-            System.out.println("Not an En Passant move: destination is not empty.");
-            return false;
-        }
-
-        ChessPiece lastMovedPiece = board.getPiece(lastMoveEnd);
-        if (lastMovedPiece == null) {
-            System.out.println("Last moved piece is null. This shouldn't happen.");
-            return false;
-        }
-
-        if (lastMovedPiece.getPieceType() != ChessPiece.PieceType.PAWN) {
-            System.out.println("Last moved piece is not a pawn. Not an En Passant move.");
-            return false;
-        }
-
-        if (Math.abs(lastMove.getStartPosition().getRow() - lastMoveEnd.getRow()) != 2) {
-            System.out.println("Last move was not a double step. Not an En Passant move.");
-            return false;
-        }
 
         // Calculate the position of the captured pawn
         int capturedPawnRow = (piece.getTeamColor() == TeamColor.WHITE) ? currentMoveEnd.getRow() - 1 : currentMoveEnd.getRow() + 1;
@@ -379,22 +294,13 @@ public class ChessGame {
         // Remove the captured pawn
         ChessPiece capturedPawn = board.getPiece(capturedPawnPosition);
         if (capturedPawn == null) {
-            System.out.println("No pawn found at the expected capture position: " + capturedPawnPosition);
             return false;
         }
-
-        System.out.println("Executing En Passant capture. Removing pawn at " + capturedPawnPosition);
         board.addPiece(capturedPawnPosition, null);
 
         // Move the capturing pawn
         board.addPiece(currentMoveEnd, piece);
         board.addPiece(move.getStartPosition(), null);
-
-        System.out.println("En Passant capture complete. Capturing pawn moved to " + currentMoveEnd);
-
-        // Print board state after En Passant
-        System.out.println("Board state after En Passant:");
-        printBoardState();
 
         return true;
     }
@@ -461,7 +367,6 @@ public class ChessGame {
             }
         }
     }
-
 
     private void validateKnightMove(ChessPiece piece, ChessMove move, ChessBoard board) throws InvalidMoveException {
         int startRow = move.getStartPosition().getRow();
@@ -720,8 +625,6 @@ public class ChessGame {
         // Return false if the move gets the team out of check, true otherwise
         return tempGame.isInCheck(this.teamTurn);
     }
-
-
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having

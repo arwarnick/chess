@@ -14,8 +14,6 @@ public class ChessBoard {
     private ChessMove lastMove;
 
     public ChessBoard() {
-        // Initialize an 8x8 array to represent the chessboard.
-        // The board is empty initially.
         this.board = new ChessPiece[8][8];
     }
 
@@ -43,7 +41,6 @@ public class ChessBoard {
         if (row >= 0 && row < 8 && col >= 0 && col < 8) {
             board[row][col] = piece;
         } else {
-            // Optionally, you can throw an exception or handle this case if the position is out of bounds.
             System.out.println("Position is out of the chessboard bounds.");
         }
     }

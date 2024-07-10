@@ -12,10 +12,8 @@ public class ChessPiece {
 
     private ChessGame.TeamColor pieceColor;
     private PieceType type;
-    private boolean hasMoved = false; // Field to track if the piece has moved
-    private ChessPosition position; // Add this line to store the piece's position
-
-
+    private boolean hasMoved = false;
+    private ChessPosition position;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -228,26 +226,6 @@ public class ChessPiece {
         return moves;
     }
 
-    private void addEnPassantMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
-        int direction = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int enPassantRow = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 5 : 4;
-
-        if (myPosition.getRow() == enPassantRow) {
-            for (int colOffset : new int[]{-1, 1}) {
-                int newCol = myPosition.getColumn() + colOffset;
-                if (newCol >= 1 && newCol <= 8) {
-                    ChessPosition adjacentPosition = new ChessPosition(myPosition.getRow(), newCol);
-                    ChessPiece adjacentPiece = board.getPiece(adjacentPosition);
-                    if (adjacentPiece != null && adjacentPiece.getPieceType() == PieceType.PAWN &&
-                            adjacentPiece.getTeamColor() != this.getTeamColor()) {
-                        ChessPosition enPassantTarget = new ChessPosition(myPosition.getRow() + direction, newCol);
-                        moves.add(new ChessMove(myPosition, enPassantTarget, null));
-                    }
-                }
-            }
-        }
-    }
-
     private void addLinearMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection) {
         int currentRow = startPosition.getRow();
         int currentCol = startPosition.getColumn();
@@ -366,8 +344,6 @@ public class ChessPiece {
 
         return true; // All conditions for castling are met
     }
-
-
 
     @Override
     public boolean equals(Object obj) {
