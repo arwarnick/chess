@@ -272,6 +272,7 @@ public class ChessGame {
 
         // Update the last move
         setLastMove(move);
+        board.setLastMove(move);
 
         // Switch turns
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;

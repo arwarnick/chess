@@ -185,8 +185,22 @@ public class ChessPiece {
 
                 // Standard capture moves for pawn
                 addPawnCaptureMoves(moves, board, myPosition, false);
-                // Add En Passant moves
-                addEnPassantMoves(moves, board, myPosition);
+                // En Passant logic
+                ChessMove lastMove = board.getLastMove();
+                if (lastMove != null && lastMove.getEndPosition().getRow() == myPosition.getRow() &&
+                        Math.abs(lastMove.getEndPosition().getColumn() - myPosition.getColumn()) == 1) {
+                    ChessPiece lastMovedPiece = board.getPiece(lastMove.getEndPosition());
+                    if (lastMovedPiece != null && lastMovedPiece.getPieceType() == PieceType.PAWN &&
+                            lastMovedPiece.getTeamColor() != this.getTeamColor() &&
+                            Math.abs(lastMove.getStartPosition().getRow() - lastMove.getEndPosition().getRow()) == 2) {
+                        // Valid En Passant move
+                        ChessPosition enPassantPosition = new ChessPosition(
+                                myPosition.getRow() + direction,
+                                lastMove.getEndPosition().getColumn()
+                        );
+                        moves.add(new ChessMove(myPosition, enPassantPosition, null));
+                    }
+                }
             }
         }
 

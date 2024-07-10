@@ -11,11 +11,20 @@ import java.util.Arrays;
 public class ChessBoard {
 
     private ChessPiece[][] board;
+    private ChessMove lastMove;
 
     public ChessBoard() {
         // Initialize an 8x8 array to represent the chessboard.
         // The board is empty initially.
         this.board = new ChessPiece[8][8];
+    }
+
+    public void setLastMove(ChessMove move) {
+        this.lastMove = move;
+    }
+
+    public ChessMove getLastMove() {
+        return this.lastMove;
     }
 
     /**
