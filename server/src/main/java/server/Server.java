@@ -44,6 +44,8 @@ public class Server {
 
     private Object handleClear(Request req, Response res) {
         userService.clear();
+        authService.clear();
+        gameService.clear();
         res.status(200);
         return "{}";
     }

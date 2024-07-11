@@ -61,6 +61,5 @@ public class UserService {
 
     public void clear() {
         userDAO.clear();
-        authDAO.clear();
     }
 }

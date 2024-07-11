@@ -28,7 +28,14 @@ public class GameService {
         GameData newGame = new GameData(0, null, null, request.gameName(), new ChessGame());
         gameDAO.createGame(newGame);
 
-        return new CreateGameResult(newGame.gameID());
+        // Retrieve the created game to get its ID
+        List<GameData> games = gameDAO.listGames();
+        GameData createdGame = games.stream()
+                .filter(game -> game.gameName().equals(request.gameName()))
+                .findFirst()
+                .orElseThrow(() -> new DataAccessException("Error: failed to create game"));
+
+        return new CreateGameResult(createdGame.gameID());
     }
 
     public void joinGame(JoinGameRequest request, String authToken) throws DataAccessException {
@@ -70,5 +77,9 @@ public class GameService {
 
         List<GameData> games = gameDAO.listGames();
         return new ListGamesResult(games);
+    }
+
+    public void clear() {
+        gameDAO.clear();
     }
 }

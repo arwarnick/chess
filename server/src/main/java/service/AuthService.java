@@ -43,4 +43,8 @@ public class AuthService {
         }
         return authData;
     }
+
+    public void clear() {
+        authDAO.clear();
+    }
 }

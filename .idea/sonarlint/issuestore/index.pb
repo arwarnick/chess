@@ -29,12 +29,8 @@ X
 ,server/src/main/java/dataaccess/AuthDAO.java,3\2\32b7a2b97a8957e906a6d7e19358db18d9b6f1b5
 h
 8server/src/main/java/dataaccess/DataAccessException.java,2\e\2ea31417f70d86666411d348ab6c6846566a4c92
-\
-,server/src/main/java/dataaccess/GameDAO.java,2\f\2f91df5495b3b24343ce6793d5a278799d552304
 b
 2server/src/main/java/dataaccess/MemoryAuthDAO.java,8\a\8a97b34294ab136117de6d255e41a49f801be6d3
-b
-2server/src/main/java/dataaccess/MemoryGameDAO.java,1\b\1babdbbe5c7606f1de4b3e02ba92eb53d7a1adfa
 b
 2server/src/main/java/dataaccess/MemoryUserDAO.java,0\7\07c8e87dfa1f0641556e5d98b5a66011b7b29e80
 \
@@ -45,8 +41,6 @@ a
 1server/src/main/java/request/JoinGameRequest.java,3\0\30091f5994da3d0073ec2b3442932f8f65a63436
 ^
 .server/src/main/java/request/LoginRequest.java,0\b\0befd2204707efb2246f3233c259af9132e19aab
-a
-1server/src/main/java/result/CreateGameResult.java,d\9\d99acf408f7da2865d1f64004216379a25f7d2e7
 \
 ,server/src/main/java/result/ErrorResult.java,1\8\18c877ca0508da4b0b55200b5517aacb581819b6
 `
@@ -55,7 +49,3 @@ a
 ,server/src/main/java/result/LoginResult.java,2\2\22fe9902d2cac00eba37ce085ae3a531b3096da7
 _
 /server/src/main/java/result/RegisterResult.java,7\b\7b115b1ce189e72b9cabf45aa721697644be26bc
-]
--server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
-]
--server/src/main/java/service/GameService.java,e\e\ee958dc93989023d27c9ff27f8725605e0e3ad3d
