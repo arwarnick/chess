@@ -21,3 +21,5 @@ Z
 *shared/src/main/java/chess/ChessPiece.java,c\0\c02b93065e1c720b0a958f6a9aa91f709ca1cca9
 Y
 )shared/src/main/java/chess/ChessGame.java,1\2\12ee2b2e0577bf40c2f0f09ceb1e2b3d9b36bd7a
+r
+Bshared/src/test/java/passoff/chess/extracredit/EnPassantTests.java,a\0\a07507912040eb7e3ab8f9e1aadc283fca9da143
