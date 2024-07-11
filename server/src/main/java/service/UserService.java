@@ -19,6 +19,11 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest request) throws DataAccessException {
+        // Validate the request
+        if (!request.isValid()) {
+            throw new DataAccessException("Error: bad request");
+        }
+
         // Check if user already exists
         if (userDAO.getUser(request.username()) != null) {
             throw new DataAccessException("Error: already taken");

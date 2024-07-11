@@ -46,8 +46,6 @@ a
 ^
 .server/src/main/java/request/LoginRequest.java,0\b\0befd2204707efb2246f3233c259af9132e19aab
 a
-1server/src/main/java/request/RegisterRequest.java,e\7\e7b62abac5ed73df3f92c67679cd9ab8ef7ca453
-a
 1server/src/main/java/result/CreateGameResult.java,d\9\d99acf408f7da2865d1f64004216379a25f7d2e7
 \
 ,server/src/main/java/result/ErrorResult.java,1\8\18c877ca0508da4b0b55200b5517aacb581819b6

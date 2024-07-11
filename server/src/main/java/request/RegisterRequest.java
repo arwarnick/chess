@@ -1,15 +1,21 @@
 package request;
 
 public record RegisterRequest(String username, String password, String email) {
-    public RegisterRequest {
-        if (username == null || username.isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-        if (password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
-        }
-        if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
-        }
+
+    // Methods to check if fields are valid
+    public boolean isValid() {
+        return isUsernameValid() && isPasswordValid() && isEmailValid();
+    }
+
+    public boolean isUsernameValid() {
+        return username != null && !username.isEmpty();
+    }
+
+    public boolean isPasswordValid() {
+        return password != null && !password.isEmpty();
+    }
+
+    public boolean isEmailValid() {
+        return email != null && !username.isEmpty();
     }
 }

@@ -55,7 +55,13 @@ public class Server {
             res.status(200);
             return gson.toJson(result);
         } catch (DataAccessException e) {
-            res.status(403);
+            if (e.getMessage().equals("Error: bad request")) {
+                res.status(400);
+            } else if (e.getMessage().equals("Error: already taken")) {
+                res.status(403);
+            } else {
+                res.status(500);
+            }
             return gson.toJson(new ErrorResult(e.getMessage()));
         }
     }
