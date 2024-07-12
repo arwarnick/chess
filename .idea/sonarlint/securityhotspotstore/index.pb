@@ -57,9 +57,5 @@ a
 1server/src/main/java/result/CreateGameResult.java,d\9\d99acf408f7da2865d1f64004216379a25f7d2e7
 X
 (shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
-]
--server/src/main/java/service/UserService.java,a\8\a8700e81e1eb2180e7427c199a2e2a92de0b6161
-]
--server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
 b
 2server/src/main/java/dataaccess/MemoryGameDAO.java,1\b\1babdbbe5c7606f1de4b3e02ba92eb53d7a1adfa

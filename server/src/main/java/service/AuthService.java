@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
@@ -34,14 +33,6 @@ public class AuthService {
             throw new DataAccessException("Error: unauthorized");
         }
         authDAO.deleteAuth(authToken);
-    }
-
-    public AuthData getAuth(String authToken) throws DataAccessException {
-        AuthData authData = authDAO.getAuth(authToken);
-        if (authData == null) {
-            throw new DataAccessException("Error: unauthorized");
-        }
-        return authData;
     }
 
     public void clear() {
