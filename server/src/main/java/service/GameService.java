@@ -50,27 +50,25 @@ public class GameService {
         }
 
         ChessGame.TeamColor color = request.getTeamColor();
-        if (color != null) {
-            if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) {
-                throw new DataAccessException("Error: already taken");
-            }
-            if (color == ChessGame.TeamColor.BLACK && game.blackUsername() != null) {
-                throw new DataAccessException("Error: already taken");
-            }
-
-            GameData updatedGame = new GameData(
-                    game.gameID(),
-                    color == ChessGame.TeamColor.WHITE ? authData.username() : game.whiteUsername(),
-                    color == ChessGame.TeamColor.BLACK ? authData.username() : game.blackUsername(),
-                    game.gameName(),
-                    game.game()
-            );
-            gameDAO.updateGame(updatedGame);
-        } else if (request.playerColor() != null) {
-            // If playerColor is not null but getTeamColor() returned null, it's an invalid color
+        if (color == null) {
             throw new DataAccessException("Error: bad request");
         }
-        // If color is null and playerColor is null, the user is joining as an observer, so no update is needed
+
+        if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) {
+            throw new DataAccessException("Error: already taken");
+        }
+        if (color == ChessGame.TeamColor.BLACK && game.blackUsername() != null) {
+            throw new DataAccessException("Error: already taken");
+        }
+
+        GameData updatedGame = new GameData(
+                game.gameID(),
+                color == ChessGame.TeamColor.WHITE ? authData.username() : game.whiteUsername(),
+                color == ChessGame.TeamColor.BLACK ? authData.username() : game.blackUsername(),
+                game.gameName(),
+                game.game()
+        );
+        gameDAO.updateGame(updatedGame);
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException {
