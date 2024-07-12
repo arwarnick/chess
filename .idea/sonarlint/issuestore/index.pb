@@ -37,8 +37,6 @@ b
 ,server/src/main/java/dataaccess/UserDAO.java,2\b\2b0eb05bbda7131c6aadd106a1b93771fe1cec00
 c
 3server/src/main/java/request/CreateGameRequest.java,9\d\9ddb329fe84bd8bbcb42f73854ea1d1ab698898d
-a
-1server/src/main/java/request/JoinGameRequest.java,3\0\30091f5994da3d0073ec2b3442932f8f65a63436
 ^
 .server/src/main/java/request/LoginRequest.java,0\b\0befd2204707efb2246f3233c259af9132e19aab
 \

@@ -135,6 +135,9 @@ public class Server {
                 res.status(500);
             }
             return gson.toJson(new ErrorResult(e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return gson.toJson(new ErrorResult("Error: bad request"));
         }
     }
 
