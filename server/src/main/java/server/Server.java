@@ -24,10 +24,23 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        configureServerPort(desiredPort);
+        configureStaticFiles();
+        setupEndpoints();
+        setupExceptionHandler();
+        awaitServerInitialization();
+        return Spark.port();
+    }
+
+    private void configureServerPort(int desiredPort) {
         Spark.port(desiredPort);
+    }
 
+    private void configureStaticFiles() {
         Spark.staticFiles.location("web");
+    }
 
+    private void setupEndpoints() {
         Spark.delete("/db", this::handleClear);
         Spark.post("/user", this::handleRegister);
         Spark.post("/session", this::handleLogin);
@@ -35,11 +48,14 @@ public class Server {
         Spark.get("/game", this::handleListGames);
         Spark.post("/game", this::handleCreateGame);
         Spark.put("/game", this::handleJoinGame);
+    }
 
+    private void setupExceptionHandler() {
         Spark.exception(DataAccessException.class, this::handleException);
+    }
 
+    private void awaitServerInitialization() {
         Spark.awaitInitialization();
-        return Spark.port();
     }
 
     private Object handleClear(Request req, Response res) {
