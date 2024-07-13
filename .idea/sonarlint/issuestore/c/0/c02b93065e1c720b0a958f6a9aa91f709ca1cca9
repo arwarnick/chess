@@ -1,9 +1,0 @@
-
-z	java:S135S"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ8²ĞÑĞ‰2
-{	java:S135é"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿ8³ĞÑĞ‰2
-o
-java:S3776G"RRefactor this method to reduce its Cognitive Complexity from 83 to the 15 allowed.(°å†8¹ÔÑĞ‰2
-c
-java:S1854˜"@Remove this useless assignment to local variable "promotionRow".(Ğ‚ç´şÿÿÿÿ8ÇÔÑĞ‰2
-T
-java:S1481˜"1Remove this unused "promotionRow" local variable.(Ğ‚ç´şÿÿÿÿ8ÈÔÑĞ‰2
