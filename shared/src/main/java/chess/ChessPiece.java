@@ -69,6 +69,10 @@ public class ChessPiece {
         return moves;
     }
 
+    /**
+     * Calculates all possible moves for a bishop
+     * Bishops move diagonally in all four directions
+     */
     private void calculateBishopMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         int[] directions = {-1, 1};
         for (int rowDirection : directions) {
@@ -78,6 +82,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates all possible moves for a king
+     * Kings can move one square in any direction
+     */
     private void calculateKingMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         int[][] kingDirections = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
         for (int[] direction : kingDirections) {
@@ -85,6 +93,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates all possible moves for a knight
+     * Knights move in an L-shape: 2 squares in one direction and 1 square perpendicular to that
+     */
     private void calculateKnightMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         int[][] knightMoves = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};
         for (int[] move : knightMoves) {
@@ -92,6 +104,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates all possible moves for a pawn
+     * Pawns have complex movement rules including initial double move, diagonal capture, and promotion
+     */
     private void calculatePawnMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         if (isPawnPromotionRow(myPosition)) {
             handlePawnPromotion(moves, board, myPosition);
@@ -100,6 +116,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates all possible moves for a queen
+     * Queens can move any number of squares in any direction (combination of rook and bishop moves)
+     */
     private void calculateQueenMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         int[] directions = {-1, 0, 1};
         for (int rowDirection : directions) {
@@ -111,6 +131,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Calculates all possible moves for a rook
+     * Rooks can move any number of squares horizontally or vertically
+     */
     private void calculateRookMoves(ChessBoard board, ChessPosition myPosition, Set<ChessMove> moves) {
         addLinearMoves(moves, board, myPosition, -1, 0);
         addLinearMoves(moves, board, myPosition, 1, 0);
@@ -118,6 +142,9 @@ public class ChessPiece {
         addLinearMoves(moves, board, myPosition, 0, 1);
     }
 
+    /**
+     * Adds all possible moves in a straight line until blocked or at edge of board
+     */
     private void addLinearMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowDirection, int colDirection) {
         int currentRow = startPosition.getRow();
         int currentCol = startPosition.getColumn();
@@ -134,16 +161,21 @@ public class ChessPiece {
             ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
 
             if (pieceAtNewPosition != null) {
+                // If there's a piece, we can capture it if it's an enemy piece, then stop
                 if (pieceAtNewPosition.getTeamColor() != this.teamColor) {
                     moves.add(new ChessMove(startPosition, newPosition, null));
                 }
                 break;
             } else {
+                // If the square is empty, we can move there
                 moves.add(new ChessMove(startPosition, newPosition, null));
             }
         }
     }
 
+    /**
+     * Adds a single move if it's valid and either to an empty square or capturing an enemy piece
+     */
     private void addSingleMove(Set<ChessMove> moves, ChessBoard board, ChessPosition startPosition, int rowOffset, int colOffset) {
         int newRow = startPosition.getRow() + rowOffset;
         int newCol = startPosition.getColumn() + colOffset;
@@ -162,6 +194,10 @@ public class ChessPiece {
         return row >= 1 && row <= 8 && col >= 1 && col <= 8;
     }
 
+    /**
+     * Handles pawn promotion moves
+     * When a pawn reaches the opposite end of the board, it can be promoted to any other piece type except king
+     */
     private void handlePawnPromotion(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
         int direction = getPawnDirection();
         ChessPosition promotionPosition = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
@@ -172,14 +208,19 @@ public class ChessPiece {
         addPawnCaptureMoves(moves, board, myPosition, true);
     }
 
+    /**
+     * Handles regular pawn moves including initial double move and capture moves
+     */
     private void handleRegularPawnMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
         int direction = getPawnDirection();
         int startRow = (this.teamColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
 
+        // Forward move
         ChessPosition oneStep = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
         if (isPositionValid(oneStep.getRow(), oneStep.getColumn()) && board.getPiece(oneStep) == null) {
             moves.add(new ChessMove(myPosition, oneStep, null));
 
+            // Initial double move
             if (myPosition.getRow() == startRow) {
                 ChessPosition twoSteps = new ChessPosition(myPosition.getRow() + 2 * direction, myPosition.getColumn());
                 if (board.getPiece(twoSteps) == null) {
@@ -188,7 +229,10 @@ public class ChessPiece {
             }
         }
 
+        // Capture moves
         addPawnCaptureMoves(moves, board, myPosition, false);
+
+        // En passant move
         addEnPassantMove(moves, board, myPosition);
     }
 
@@ -207,6 +251,9 @@ public class ChessPiece {
         return (this.teamColor == ChessGame.TeamColor.WHITE) ? 1 : -1;
     }
 
+    /**
+     * Adds pawn capture moves, including diagonal captures and promotion captures
+     */
     private void addPawnCaptureMoves(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition, boolean isPromotion) {
         int[] captureCols = {myPosition.getColumn() - 1, myPosition.getColumn() + 1};
         for (int captureCol : captureCols) {
@@ -224,6 +271,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Adds en passant move if it's available
+     * En passant is a special pawn capture move that can happen immediately after an opponent pawn moves two squares
+     */
     private void addEnPassantMove(Set<ChessMove> moves, ChessBoard board, ChessPosition myPosition) {
         ChessMove lastMove = board.getLastMove();
         if (lastMove != null && lastMove.getEndPosition().getRow() == myPosition.getRow() &&
@@ -241,6 +292,10 @@ public class ChessPiece {
         }
     }
 
+    /**
+     * Checks if a castling move is valid
+     * Castling is a special move involving the king and a rook
+     */
     public boolean isCastlingMove(ChessBoard board, ChessPosition endPosition, ChessGame game) {
         if (this.type != PieceType.KING || this.hasMoved) {
             return false;
@@ -252,6 +307,7 @@ public class ChessPiece {
         int row = teamColor == ChessGame.TeamColor.WHITE ? 1 : 8;
         ChessPosition passingSquare = new ChessPosition(row, this.position.getColumn() + direction / 2);
 
+        // Check if the king is in check, or if it passes through or ends on an attacked square
         if (game.isPositionUnderAttack(this.position, teamColor) ||
                 game.isPositionUnderAttack(passingSquare, teamColor) ||
                 game.isPositionUnderAttack(endPosition, teamColor)) {
@@ -261,6 +317,7 @@ public class ChessPiece {
         ChessPosition rookPosition = new ChessPosition(row, direction > 0 ? 8 : 1);
         ChessPiece rook = board.getPiece(rookPosition);
 
+        // Check if the rook is in place and hasn't moved
         if (rook == null || rook.hasMoved() || rook.getPieceType() != PieceType.ROOK) {
             return false;
         }
@@ -268,6 +325,9 @@ public class ChessPiece {
         return isPathClearForCastling(board, row, direction);
     }
 
+    /**
+     * Checks if the path between the king and rook is clear for castling
+     */
     private boolean isPathClearForCastling(ChessBoard board, int row, int direction) {
         int step = direction > 0 ? 1 : -1;
         for (int col = this.position.getColumn() + step; col != (direction > 0 ? 8 : 1); col += step) {

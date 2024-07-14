@@ -4,7 +4,12 @@ import model.AuthData;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * In-memory implementation of the AuthDAO interface.
+ * This class stores authentication data in a HashMap for quick access and modification.
+ */
 public class MemoryAuthDAO implements AuthDAO {
+    /** Map to store authentication tokens and their associated data */
     private final Map<String, AuthData> auths = new HashMap<>();
 
     @Override

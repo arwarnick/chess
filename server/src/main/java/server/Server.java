@@ -7,12 +7,20 @@ import dataaccess.*;
 import request.*;
 import result.*;
 
+/**
+ * The main server class for the chess application.
+ * This class sets up and manages the HTTP endpoints for the chess server.
+ */
 public class Server {
     private final UserService userService;
     private final AuthService authService;
     private final GameService gameService;
-    private final Gson gson = new Gson();
+    private final Gson gson;
 
+    /**
+     * Constructs a new Server instance.
+     * Initializes services with in-memory data access objects.
+     */
     public Server() {
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
@@ -21,147 +29,223 @@ public class Server {
         this.userService = new UserService(userDAO, authDAO);
         this.authService = new AuthService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
+        this.gson = new Gson();
     }
 
+    /**
+     * Starts the server on the specified port.
+     *
+     * @param desiredPort the port to run the server on
+     * @return the actual port the server is running on
+     */
     public int run(int desiredPort) {
-        configureServerPort(desiredPort);
-        configureStaticFiles();
+        Spark.port(desiredPort);
+        Spark.staticFiles.location("web");
+
         setupEndpoints();
-        setupExceptionHandler();
-        awaitServerInitialization();
+        setupExceptionHandling();
+
+        Spark.awaitInitialization();
         return Spark.port();
     }
 
-    private void configureServerPort(int desiredPort) {
-        Spark.port(desiredPort);
-    }
-
-    private void configureStaticFiles() {
-        Spark.staticFiles.location("web");
-    }
-
+    /**
+     * Sets up all the HTTP endpoints for the server.
+     */
     private void setupEndpoints() {
-        Spark.delete("/db", this::handleClear);
-        Spark.post("/user", this::handleRegister);
-        Spark.post("/session", this::handleLogin);
-        Spark.delete("/session", this::handleLogout);
+        Spark.delete("/db", this::handleClearDatabase);
+        Spark.post("/user", this::handleRegisterUser);
+        Spark.post("/session", this::handleLoginUser);
+        Spark.delete("/session", this::handleLogoutUser);
         Spark.get("/game", this::handleListGames);
         Spark.post("/game", this::handleCreateGame);
         Spark.put("/game", this::handleJoinGame);
     }
 
-    private void setupExceptionHandler() {
-        Spark.exception(DataAccessException.class, this::handleException);
+    /**
+     * Sets up exception handling for the server.
+     */
+    private void setupExceptionHandling() {
+        Spark.exception(DataAccessException.class, this::handleDataAccessException);
+        Spark.exception(Exception.class, this::handleGenericException);
     }
 
-    private void awaitServerInitialization() {
-        Spark.awaitInitialization();
-    }
-
-    private Object handleClear(Request req, Response res) {
+    /**
+     * Handles the clear database endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return an empty JSON object as a string
+     */
+    private Object handleClearDatabase(Request request, Response response) {
         userService.clear();
         authService.clear();
         gameService.clear();
-        res.status(200);
+        response.status(200);
         return "{}";
     }
 
-    private Object handleRegister(Request req, Response res) {
-        var registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
+    /**
+     * Handles the register user endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return a JSON string representing the RegisterResult
+     * @throws DataAccessException if registration fails
+     */
+    private Object handleRegisterUser(Request request, Response response) throws DataAccessException {
+        var registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
         try {
             RegisterResult result = userService.register(registerRequest);
-            res.status(200);
+            response.status(200);
             return gson.toJson(result);
         } catch (DataAccessException e) {
-            if (e.getMessage().equals("Error: bad request")) {
-                res.status(400);
-            } else if (e.getMessage().equals("Error: already taken")) {
-                res.status(403);
-            } else {
-                res.status(500);
-            }
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         }
     }
 
-    private Object handleLogin(Request req, Response res) {
-        var loginRequest = gson.fromJson(req.body(), LoginRequest.class);
+    /**
+     * Handles the login user endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return a JSON string representing the LoginResult
+     * @throws DataAccessException if login fails
+     */
+    private Object handleLoginUser(Request request, Response response) throws DataAccessException {
+        var loginRequest = gson.fromJson(request.body(), LoginRequest.class);
         try {
             LoginResult result = authService.login(loginRequest);
-            res.status(200);
+            response.status(200);
             return gson.toJson(result);
         } catch (DataAccessException e) {
-            res.status(401);
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         }
     }
 
-    private Object handleLogout(Request req, Response res) {
-        String authToken = req.headers("Authorization");
+    /**
+     * Handles the logout user endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return an empty JSON object as a string
+     * @throws DataAccessException if logout fails
+     */
+    private Object handleLogoutUser(Request request, Response response) throws DataAccessException {
+        String authToken = request.headers("Authorization");
         try {
             authService.logout(authToken);
-            res.status(200);
+            response.status(200);
             return "{}";
         } catch (DataAccessException e) {
-            res.status(401);
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         }
     }
 
-    private Object handleListGames(Request req, Response res) {
-        String authToken = req.headers("Authorization");
+    /**
+     * Handles the list games endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return a JSON string representing the ListGamesResult
+     * @throws DataAccessException if listing games fails
+     */
+    private Object handleListGames(Request request, Response response) throws DataAccessException {
+        String authToken = request.headers("Authorization");
         try {
             ListGamesResult result = gameService.listGames(authToken);
-            res.status(200);
+            response.status(200);
             return gson.toJson(result);
         } catch (DataAccessException e) {
-            res.status(401);
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         }
     }
 
-    private Object handleCreateGame(Request req, Response res) {
-        String authToken = req.headers("Authorization");
-        var createGameRequest = gson.fromJson(req.body(), CreateGameRequest.class);
+    /**
+     * Handles the create game endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return a JSON string representing the CreateGameResult
+     * @throws DataAccessException if game creation fails
+     */
+    private Object handleCreateGame(Request request, Response response) throws DataAccessException {
+        String authToken = request.headers("Authorization");
+        var createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
         try {
             CreateGameResult result = gameService.createGame(createGameRequest, authToken);
-            res.status(200);
+            response.status(200);
             return gson.toJson(result);
         } catch (DataAccessException e) {
-            res.status(401);
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         }
     }
 
-    private Object handleJoinGame(Request req, Response res) {
-        String authToken = req.headers("Authorization");
-        var joinGameRequest = gson.fromJson(req.body(), JoinGameRequest.class);
+    /**
+     * Handles the join game endpoint.
+     *
+     * @param request the Spark request object
+     * @param response the Spark response object
+     * @return an empty JSON object as a string
+     * @throws DataAccessException if joining the game fails
+     */
+    private Object handleJoinGame(Request request, Response response) throws DataAccessException {
+        String authToken = request.headers("Authorization");
+        var joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
         try {
             gameService.joinGame(joinGameRequest, authToken);
-            res.status(200);
+            response.status(200);
             return "{}";
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("bad request")) {
-                res.status(400);
-            } else if (e.getMessage().contains("unauthorized")) {
-                res.status(401);
-            } else if (e.getMessage().contains("already taken")) {
-                res.status(403);
-            } else {
-                res.status(500);
-            }
-            return gson.toJson(new ErrorResult(e.getMessage()));
+            throw e;
         } catch (IllegalArgumentException e) {
-            res.status(400);
-            return gson.toJson(new ErrorResult("Error: bad request"));
+            throw new DataAccessException("Error: bad request");
         }
     }
 
-    private void handleException(Exception e, Request req, Response res) {
-        res.status(500);
-        res.body(gson.toJson(new ErrorResult(e.getMessage())));
+    /**
+     * Handles DataAccessExceptions by setting the appropriate HTTP status and error message.
+     *
+     * @param e the caught DataAccessException
+     * @param request the Spark request object
+     * @param response the Spark response object
+     */
+    private void handleDataAccessException(DataAccessException e, Request request, Response response) {
+        ErrorResult errorResult = new ErrorResult(e.getMessage());
+        response.status(determineHttpStatus(e));
+        response.body(gson.toJson(errorResult));
     }
 
+    /**
+     * Handles generic exceptions by setting a 500 Internal Server Error status.
+     *
+     * @param e the caught Exception
+     * @param request the Spark request object
+     * @param response the Spark response object
+     */
+    private void handleGenericException(Exception e, Request request, Response response) {
+        ErrorResult errorResult = new ErrorResult("Internal server error");
+        response.status(500);
+        response.body(gson.toJson(errorResult));
+    }
+
+    /**
+     * Determines the appropriate HTTP status code based on the exception message.
+     *
+     * @param e the DataAccessException
+     * @return the appropriate HTTP status code
+     */
+    private int determineHttpStatus(DataAccessException e) {
+        String message = e.getMessage().toLowerCase();
+        if (message.contains("unauthorized")) return 401;
+        if (message.contains("bad request")) return 400;
+        if (message.contains("already taken")) return 403;
+        return 500;
+    }
+
+    /**
+     * Stops the server.
+     */
     public void stop() {
         Spark.stop();
         Spark.awaitStop();

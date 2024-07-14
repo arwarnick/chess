@@ -6,8 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * In-memory implementation of the GameDAO interface.
+ * This class stores game data in a HashMap and manages game IDs.
+ */
 public class MemoryGameDAO implements GameDAO {
+    /** Map to store game IDs and their associated game data */
     private final Map<Integer, GameData> games = new HashMap<>();
+    /** Counter for generating unique game IDs */
     private int nextGameId = 1;
 
     @Override
