@@ -302,7 +302,9 @@ public class ChessPiece {
         }
 
         int direction = endPosition.getColumn() - this.position.getColumn();
-        if (Math.abs(direction) != 2) return false;
+        if (Math.abs(direction) != 2) {
+            return false;
+        }
 
         int row = teamColor == ChessGame.TeamColor.WHITE ? 1 : 8;
         ChessPosition passingSquare = new ChessPosition(row, this.position.getColumn() + direction / 2);
