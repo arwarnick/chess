@@ -15,8 +15,6 @@ Bshared/src/test/java/passoff/chess/extracredit/EnPassantTests.java,a\0\a075079
 ,server/src/main/java/result/LoginResult.java,2\2\22fe9902d2cac00eba37ce085ae3a531b3096da7
 X
 (shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
-a
-1server/src/main/java/request/JoinGameRequest.java,3\0\30091f5994da3d0073ec2b3442932f8f65a63436
 i
 9shared/src/test/java/passoff/chess/game/FullGameTest.java,3\0\304a628b79462cebf64407482375f8e693e3f5cc
 l

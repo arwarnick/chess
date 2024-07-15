@@ -162,7 +162,14 @@ public class ChessGame {
         boolean isKingSide = direction > 0;
 
         ChessPosition rookStartPosition = new ChessPosition(move.getStartPosition().getRow(), isKingSide ? 8 : 1);
-        ChessPosition rookEndPosition = new ChessPosition(move.getEndPosition().getRow(), isKingSide ? move.getEndPosition().getColumn() - 1 : move.getEndPosition().getColumn() + 1);
+
+        int rookEndColumn = isKingSide
+                ? move.getEndPosition().getColumn() - 1
+                : move.getEndPosition().getColumn() + 1;
+        ChessPosition rookEndPosition = new ChessPosition(
+                move.getEndPosition().getRow(),
+                rookEndColumn
+        );
 
         board.movePiece(move.getStartPosition(), move.getEndPosition());
         piece.setHasMoved(true);
@@ -222,14 +229,7 @@ public class ChessGame {
     }
 
     private boolean moveResultsInCheck(ChessMove move) {
-        ChessBoard simulatedBoard = this.board.deepCopy();
-        simulatedBoard.movePiece(move.getStartPosition(), move.getEndPosition());
-
-        ChessGame tempGame = new ChessGame();
-        tempGame.setBoard(simulatedBoard);
-        tempGame.setTeamTurn(this.teamTurn);
-
-        return tempGame.isInCheck(this.teamTurn);
+        return simulateMove(move);
     }
 
     /**
