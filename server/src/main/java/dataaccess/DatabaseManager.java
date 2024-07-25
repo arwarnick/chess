@@ -72,14 +72,31 @@ public class DatabaseManager {
 
     public static void createTables() throws DataAccessException {
         try (Connection conn = getConnection()) {
-            String sql = """
+            // Create users table (as before)
+            String usersSql = """
             CREATE TABLE IF NOT EXISTS users (
                 username VARCHAR(255) PRIMARY KEY,
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL
             )
             """;
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(usersSql)) {
+                stmt.executeUpdate();
+            }
+
+            // Create games table
+            String gamesSql = """
+            CREATE TABLE IF NOT EXISTS games (
+                game_id INT PRIMARY KEY AUTO_INCREMENT,
+                white_username VARCHAR(255),
+                black_username VARCHAR(255),
+                game_name VARCHAR(255) NOT NULL,
+                game_state TEXT,
+                FOREIGN KEY (white_username) REFERENCES users(username),
+                FOREIGN KEY (black_username) REFERENCES users(username)
+            )
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(gamesSql)) {
                 stmt.executeUpdate();
             }
         } catch (SQLException e) {

@@ -12,7 +12,7 @@ public interface GameDAO {
      * Clears all stored game data.
      * This method is typically used for testing or resetting the system.
      */
-    void clear();
+    void clear() throws DataAccessException;
 
     /**
      * Creates a new game in the data store.
