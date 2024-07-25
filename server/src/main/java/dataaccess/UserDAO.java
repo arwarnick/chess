@@ -10,8 +10,9 @@ public interface UserDAO {
     /**
      * Clears all stored user data.
      * This method is typically used for testing or resetting the system.
+     * @throws DataAccessException if there's an error while accessing the data store
      */
-    void clear();
+    void clear() throws DataAccessException;
 
     /**
      * Creates a new user in the data store.

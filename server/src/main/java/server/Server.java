@@ -30,6 +30,14 @@ public class Server {
         this.authService = new AuthService(userDAO, authDAO);
         this.gameService = new GameService(gameDAO, authDAO);
         this.gson = new Gson();
+
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.createTables();
+            // ... rest of initialization code
+        } catch (DataAccessException e) {
+            System.err.println("Error initializing database: " + e.getMessage());
+        }
     }
 
     /**
@@ -77,7 +85,7 @@ public class Server {
      * @param response the Spark response object
      * @return an empty JSON object as a string
      */
-    private Object handleClearDatabase(Request request, Response response) {
+    private Object handleClearDatabase(Request request, Response response) throws DataAccessException {
         userService.clear();
         authService.clear();
         gameService.clear();

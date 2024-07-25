@@ -38,7 +38,7 @@ public class UserService {
         return new RegisterResult(request.username(), authToken);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         userDAO.clear();
     }
 }
