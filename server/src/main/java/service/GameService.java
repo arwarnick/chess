@@ -44,10 +44,6 @@ public class GameService {
             throw new DataAccessException("Error: unauthorized");
         }
 
-        if (request.gameID() <= 0) {
-            throw new DataAccessException("Error: bad request");
-        }
-
         GameData game = gameDAO.getGame(request.gameID());
         if (game == null) {
             throw new DataAccessException("Error: bad request");

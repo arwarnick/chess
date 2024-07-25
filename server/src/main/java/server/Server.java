@@ -19,12 +19,11 @@ public class Server {
 
     /**
      * Constructs a new Server instance.
-     * Initializes services with in-memory data access objects.
      */
     public Server() {
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
+        UserDAO userDAO = new MySqlUserDAO();
+        AuthDAO authDAO = new MySqlAuthDAO();
+        GameDAO gameDAO = new MySqlGameDAO();
 
         this.userService = new UserService(userDAO, authDAO);
         this.authService = new AuthService(userDAO, authDAO);
@@ -34,7 +33,6 @@ public class Server {
         try {
             DatabaseManager.createDatabase();
             DatabaseManager.createTables();
-            // ... rest of initialization code
         } catch (DataAccessException e) {
             System.err.println("Error initializing database: " + e.getMessage());
         }

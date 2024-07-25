@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.UserData;
 import request.LoginRequest;
 import result.LoginResult;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class AuthService {
 
     public LoginResult login(LoginRequest request) throws DataAccessException {
         UserData user = userDAO.getUser(request.username());
-        if (user == null || !user.password().equals(request.password())) {
+        if (user == null || !BCrypt.checkpw(request.password(), user.password())) {
             throw new DataAccessException("Error: unauthorized");
         }
 

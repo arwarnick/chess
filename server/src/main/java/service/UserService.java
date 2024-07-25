@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.UserData;
 import request.RegisterRequest;
 import result.RegisterResult;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -27,8 +28,11 @@ public class UserService {
             throw new DataAccessException("Error: already taken");
         }
 
+        // Hash the password
+        String hashedPassword = BCrypt.hashpw(request.password(), BCrypt.gensalt());
+
         // Create new user
-        UserData newUser = new UserData(request.username(), request.password(), request.email());
+        UserData newUser = new UserData(request.username(), hashedPassword, request.email());
         userDAO.createUser(newUser);
 
         // Generate auth token
