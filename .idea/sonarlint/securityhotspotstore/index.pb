@@ -43,12 +43,8 @@ d
 4shared/src/main/java/chess/InvalidMoveException.java,e\3\e39c3486fec5f2b87e64591840622613400adc99
 i
 9server/src/test/java/passoff/server/StandardAPITests.java,9\4\94f243c94f4488610888d7e06be7837a9ed55c4d
-\
-,server/src/main/java/dataaccess/AuthDAO.java,3\2\32b7a2b97a8957e906a6d7e19358db18d9b6f1b5
 b
 2server/src/main/java/dataaccess/MemoryAuthDAO.java,8\a\8a97b34294ab136117de6d255e41a49f801be6d3
-]
--server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
 a
 1server/src/test/java/service/AuthServiceTest.java,5\6\56ab5da4d01d2f34389bda04c9c180b6e003c0a6
 a

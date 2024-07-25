@@ -99,6 +99,18 @@ public class DatabaseManager {
             try (PreparedStatement stmt = conn.prepareStatement(gamesSql)) {
                 stmt.executeUpdate();
             }
+
+            // Create auth_tokens table
+            String authTokensSql = """
+            CREATE TABLE IF NOT EXISTS auth_tokens (
+                auth_token VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username)
+            )
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(authTokensSql)) {
+                stmt.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Error creating tables: " + e.getMessage());
         }

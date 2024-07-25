@@ -11,7 +11,7 @@ public interface AuthDAO {
      * Clears all stored authentication data.
      * This method is typically used for testing or resetting the system.
      */
-    void clear();
+    void clear() throws DataAccessException;
 
     /**
      * Creates a new authentication token for a user.
