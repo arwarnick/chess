@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
@@ -17,15 +18,23 @@ public class GameServiceTest {
     private GameService gameService;
     private GameDAO gameDAO;
     private AuthDAO authDAO;
+    private UserDAO userDAO;
     private String validAuthToken;
 
     @BeforeEach
     public void setUp() throws DataAccessException {
-        gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
+        gameDAO = new MySqlGameDAO();
+        authDAO = new MySqlAuthDAO();
+        userDAO = new MySqlUserDAO();
         gameService = new GameService(gameDAO, authDAO);
 
-        // Add a valid auth token
+        // Clear the database before each test
+        DatabaseManager.clearDatabase();
+
+        // First, create a test user
+        userDAO.createUser(new UserData("testuser", "hashedpassword", "test@example.com"));
+
+        // Then, create an auth token for this user
         validAuthToken = "validAuthToken";
         authDAO.createAuth(validAuthToken, "testuser");
     }
@@ -113,11 +122,24 @@ public class GameServiceTest {
         // Create a game
         gameService.createGame(new CreateGameRequest("Test Game"), validAuthToken);
 
+        // Verify that the game was created
+        ListGamesResult beforeClear = gameService.listGames(validAuthToken);
+        assertFalse(beforeClear.games().isEmpty());
+
         // Clear the service
         gameService.clear();
 
-        // Check that the game list is empty
-        ListGamesResult result = gameService.listGames(validAuthToken);
-        assertTrue(result.games().isEmpty());
+        // Verify that the auth token is no longer valid
+        assertThrows(DataAccessException.class, () -> gameService.listGames(validAuthToken));
+
+        // Recreate the user
+        userDAO.createUser(new UserData("testuser", "hashedpassword", "test@example.com"));
+
+        // Re-authenticate to get a new valid token
+        authDAO.createAuth(validAuthToken, "testuser");
+
+        // Check that the game list is empty with the new token
+        ListGamesResult afterClear = gameService.listGames(validAuthToken);
+        assertTrue(afterClear.games().isEmpty());
     }
 }

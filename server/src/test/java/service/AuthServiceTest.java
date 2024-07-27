@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import result.LoginResult;
 
@@ -17,12 +18,17 @@ public class AuthServiceTest {
 
     @BeforeEach
     public void setUp() throws DataAccessException {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+        userDAO = new MySqlUserDAO();
+        authDAO = new MySqlAuthDAO();
         authService = new AuthService(userDAO, authDAO);
 
-        // Add a test user
-        userDAO.createUser(new UserData("testuser", "password", "test@example.com"));
+        // Clear the database before each test
+        userDAO.clear();
+        authDAO.clear();
+
+        // Add a test user with a hashed password
+        String hashedPassword = BCrypt.hashpw("password", BCrypt.gensalt());
+        userDAO.createUser(new UserData("testuser", hashedPassword, "test@example.com"));
     }
 
     @Test

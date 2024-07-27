@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
 import result.RegisterResult;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,26 +17,34 @@ public class UserServiceTest {
     private AuthDAO authDAO;
 
     @BeforeEach
-    public void setUp() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+    public void setUp() throws DataAccessException {
+        userDAO = new MySqlUserDAO();
+        authDAO = new MySqlAuthDAO();
         userService = new UserService(userDAO, authDAO);
+
+        // Clear the database before each test
+        userDAO.clear();
+        authDAO.clear();
     }
 
     @Test
     public void testSuccessfulRegistration() throws DataAccessException {
-        RegisterRequest request = new RegisterRequest("newuser", "password", "user@example.com");
+        String username = "newuser";
+        String password = "password";
+        String email = "user@example.com";
+
+        RegisterRequest request = new RegisterRequest(username, password, email);
         RegisterResult result = userService.register(request);
 
         assertNotNull(result);
-        assertEquals("newuser", result.username());
+        assertEquals(username, result.username());
         assertNotNull(result.authToken());
 
-        UserData userData = userDAO.getUser("newuser");
+        UserData userData = userDAO.getUser(username);
         assertNotNull(userData);
-        assertEquals("newuser", userData.username());
-        assertEquals("password", userData.password());
-        assertEquals("user@example.com", userData.email());
+        assertEquals(username, userData.username());
+        assertTrue(BCrypt.checkpw(password, userData.password()), "Password should be correctly hashed");
+        assertEquals(email, userData.email());
     }
 
     @Test

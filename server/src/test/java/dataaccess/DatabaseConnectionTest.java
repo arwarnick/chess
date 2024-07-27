@@ -3,17 +3,22 @@ package dataaccess;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import server.Server;
 
 public class DatabaseConnectionTest {
 
+    private static Server server;
+
     @BeforeAll
     public static void setUp() {
-        try {
-            DatabaseManager.createDatabase();
-            DatabaseManager.createTables();
-        } catch (DataAccessException e) {
-            System.err.println("Error setting up database: " + e.getMessage());
-        }
+        server = new Server();
+        var port = server.run(0);
+        System.out.println("Started test HTTP server on " + port);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        server.stop();
     }
 
     @Test

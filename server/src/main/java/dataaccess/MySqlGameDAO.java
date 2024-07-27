@@ -13,14 +13,7 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "DELETE FROM games";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error clearing games table: " + e.getMessage());
-        }
+        DatabaseManager.clearDatabase();
     }
 
     @Override

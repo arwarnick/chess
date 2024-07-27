@@ -7,14 +7,7 @@ public class MySqlAuthDAO implements AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "DELETE FROM auth_tokens";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error clearing auth tokens: " + e.getMessage());
-        }
+        DatabaseManager.clearDatabase();
     }
 
     @Override

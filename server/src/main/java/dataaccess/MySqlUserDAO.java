@@ -9,14 +9,7 @@ public class MySqlUserDAO implements UserDAO {
 
     @Override
     public void clear() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "DELETE FROM users";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error clearing users table: " + e.getMessage());
-        }
+        DatabaseManager.clearDatabase();
     }
 
     @Override
@@ -25,7 +18,7 @@ public class MySqlUserDAO implements UserDAO {
             String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user.username());
-                stmt.setString(2, BCrypt.hashpw(user.password(), BCrypt.gensalt())); // Hash the password
+                stmt.setString(2, user.password());
                 stmt.setString(3, user.email());
                 stmt.executeUpdate();
             }
@@ -52,6 +45,23 @@ public class MySqlUserDAO implements UserDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error getting user: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static String getRawPassword(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String sql = "SELECT password FROM users WHERE username = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("password");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting raw password: " + e.getMessage());
         }
         return null;
     }

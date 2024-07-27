@@ -72,7 +72,7 @@ public class DatabaseManager {
 
     public static void createTables() throws DataAccessException {
         try (Connection conn = getConnection()) {
-            // Create users table (as before)
+            // Create users table
             String usersSql = """
             CREATE TABLE IF NOT EXISTS users (
                 username VARCHAR(255) PRIMARY KEY,
@@ -82,6 +82,31 @@ public class DatabaseManager {
             """;
             try (PreparedStatement stmt = conn.prepareStatement(usersSql)) {
                 stmt.executeUpdate();
+            }
+
+            // Create auth_tokens table
+            String authTokensSql = """
+            CREATE TABLE IF NOT EXISTS auth_tokens (
+                auth_token VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL
+            )
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(authTokensSql)) {
+                stmt.executeUpdate();
+            }
+
+            // Check if the foreign key constraint already exists
+            if (!constraintExists(conn, "auth_tokens", "auth_tokens_ibfk_1")) {
+                // Add foreign key constraint to auth_tokens
+                String alterAuthTokensSql = """
+                ALTER TABLE auth_tokens
+                ADD CONSTRAINT auth_tokens_ibfk_1
+                FOREIGN KEY (username) REFERENCES users(username)
+                ON DELETE CASCADE
+                """;
+                try (PreparedStatement stmt = conn.prepareStatement(alterAuthTokensSql)) {
+                    stmt.executeUpdate();
+                }
             }
 
             // Create games table
@@ -99,20 +124,41 @@ public class DatabaseManager {
             try (PreparedStatement stmt = conn.prepareStatement(gamesSql)) {
                 stmt.executeUpdate();
             }
-
-            // Create auth_tokens table
-            String authTokensSql = """
-            CREATE TABLE IF NOT EXISTS auth_tokens (
-                auth_token VARCHAR(255) PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
-                FOREIGN KEY (username) REFERENCES users(username)
-            )
-            """;
-            try (PreparedStatement stmt = conn.prepareStatement(authTokensSql)) {
-                stmt.executeUpdate();
-            }
         } catch (SQLException e) {
             throw new DataAccessException("Error creating tables: " + e.getMessage());
+        }
+    }
+
+    private static boolean constraintExists(Connection conn, String tableName, String constraintName) throws SQLException {
+        String checkConstraintSql = """
+            SELECT COUNT(*)
+            FROM information_schema.table_constraints
+            WHERE table_schema = DATABASE()
+              AND table_name = ?
+              AND constraint_name = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(checkConstraintSql)) {
+            stmt.setString(1, tableName);
+            stmt.setString(2, constraintName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void clearDatabase() throws DataAccessException {
+        try (Connection conn = getConnection()) {
+            String[] tables = {"auth_tokens", "games", "users"};
+            for (String table : tables) {
+                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM " + table)) {
+                    stmt.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error clearing database: " + e.getMessage());
         }
     }
 }
