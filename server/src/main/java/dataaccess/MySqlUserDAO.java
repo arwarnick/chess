@@ -1,8 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
-
 import java.sql.*;
 
 public class MySqlUserDAO implements UserDAO {
@@ -45,23 +43,6 @@ public class MySqlUserDAO implements UserDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error getting user: " + e.getMessage());
-        }
-        return null;
-    }
-
-    public static String getRawPassword(String username) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String sql = "SELECT password FROM users WHERE username = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, username);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getString("password");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error getting raw password: " + e.getMessage());
         }
         return null;
     }
