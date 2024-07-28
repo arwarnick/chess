@@ -27,14 +27,12 @@ class AuthDAOTest {
     @Test
     void createAuthSuccess() throws DataAccessException {
         // Positive test
-        String authToken = UUID.randomUUID().toString();
-        String username = "testUser";
-        authDAO.createAuth(authToken, username);
+        AuthData testAuth = createTestAuth();
 
-        AuthData retrievedAuth = authDAO.getAuth(authToken);
+        AuthData retrievedAuth = authDAO.getAuth(testAuth.authToken());
         assertNotNull(retrievedAuth);
-        assertEquals(authToken, retrievedAuth.authToken());
-        assertEquals(username, retrievedAuth.username());
+        assertEquals(testAuth.authToken(), retrievedAuth.authToken());
+        assertEquals(testAuth.username(), retrievedAuth.username());
     }
 
     @Test
@@ -48,14 +46,12 @@ class AuthDAOTest {
     @Test
     void getAuthSuccess() throws DataAccessException {
         // Positive test
-        String authToken = UUID.randomUUID().toString();
-        String username = "testUser";
-        authDAO.createAuth(authToken, username);
+        AuthData testAuth = createTestAuth();
 
-        AuthData retrievedAuth = authDAO.getAuth(authToken);
+        AuthData retrievedAuth = authDAO.getAuth(testAuth.authToken());
         assertNotNull(retrievedAuth);
-        assertEquals(authToken, retrievedAuth.authToken());
-        assertEquals(username, retrievedAuth.username());
+        assertEquals(testAuth.authToken(), retrievedAuth.authToken());
+        assertEquals(testAuth.username(), retrievedAuth.username());
     }
 
     @Test
@@ -94,5 +90,12 @@ class AuthDAOTest {
         authDAO.clear();
         AuthData retrievedAuth = authDAO.getAuth(authToken);
         assertNull(retrievedAuth);
+    }
+
+    private AuthData createTestAuth() throws DataAccessException {
+        String authToken = UUID.randomUUID().toString();
+        String username = "testUser";
+        authDAO.createAuth(authToken, username);
+        return new AuthData(authToken, username);
     }
 }
