@@ -40,14 +40,22 @@ class UserDAOTest {
     @Test
     void getUserSuccess() throws DataAccessException {
         // Positive test
-        UserData user = new UserData("testUser", "password123", "test@example.com");
-        userDAO.createUser(user);
+        // Create multiple users
+        UserData user1 = new UserData("user1", "password1", "user1@example.com");
+        UserData user2 = new UserData("user2", "password2", "user2@example.com");
+        userDAO.createUser(user1);
+        userDAO.createUser(user2);
 
-        UserData retrievedUser = userDAO.getUser("testUser");
+        // Retrieve and verify the second user
+        UserData retrievedUser = userDAO.getUser("user2");
         assertNotNull(retrievedUser);
-        assertEquals(user.username(), retrievedUser.username());
-        assertEquals(user.password(), retrievedUser.password());
-        assertEquals(user.email(), retrievedUser.email());
+        assertEquals(user2.username(), retrievedUser.username());
+        assertEquals(user2.password(), retrievedUser.password());
+        assertEquals(user2.email(), retrievedUser.email());
+
+        // Verify that the first user is different
+        assertNotEquals(user1.username(), retrievedUser.username());
+        assertNotEquals(user1.email(), retrievedUser.email());
     }
 
     @Test
