@@ -69,5 +69,3 @@ a
 1server/src/test/java/service/UserServiceTest.java,f\8\f83e2b8b7a9719d4425a9cc2599f40c240264d67
 d
 4server/src/main/java/dataaccess/DatabaseManager.java,f\b\fb7cdb568d97831984b27de21950263d16967a67
-a
-1server/src/test/java/service/AuthServiceTest.java,5\6\56ab5da4d01d2f34389bda04c9c180b6e003c0a6

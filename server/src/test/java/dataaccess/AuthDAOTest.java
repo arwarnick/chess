@@ -25,7 +25,7 @@ class AuthDAOTest {
     }
 
     @Test
-    void createAuth_success() throws DataAccessException {
+    void createAuthSuccess() throws DataAccessException {
         // Positive test
         String authToken = UUID.randomUUID().toString();
         String username = "testUser";
@@ -38,7 +38,7 @@ class AuthDAOTest {
     }
 
     @Test
-    void createAuth_nonExistentUser() {
+    void createAuthNonExistentUser() {
         // Negative test
         String authToken = UUID.randomUUID().toString();
         String username = "nonExistentUser";
@@ -46,7 +46,7 @@ class AuthDAOTest {
     }
 
     @Test
-    void getAuth_success() throws DataAccessException {
+    void getAuthSuccess() throws DataAccessException {
         // Positive test
         String authToken = UUID.randomUUID().toString();
         String username = "testUser";
@@ -59,14 +59,14 @@ class AuthDAOTest {
     }
 
     @Test
-    void getAuth_nonExistent() throws DataAccessException {
+    void getAuthNonExistent() throws DataAccessException {
         // Negative test
         AuthData retrievedAuth = authDAO.getAuth(UUID.randomUUID().toString());
         assertNull(retrievedAuth);
     }
 
     @Test
-    void deleteAuth_success() throws DataAccessException {
+    void deleteAuthSuccess() throws DataAccessException {
         // Positive test
         String authToken = UUID.randomUUID().toString();
         String username = "testUser";
@@ -78,14 +78,14 @@ class AuthDAOTest {
     }
 
     @Test
-    void deleteAuth_nonExistent() {
+    void deleteAuthNonExistent() {
         // Negative test
         String nonExistentToken = UUID.randomUUID().toString();
         assertThrows(DataAccessException.class, () -> authDAO.deleteAuth(nonExistentToken));
     }
 
     @Test
-    void clear_success() throws DataAccessException {
+    void clearSuccess() throws DataAccessException {
         // Positive test
         String authToken = UUID.randomUUID().toString();
         String username = "testUser";

@@ -67,7 +67,5 @@ W
 -server/src/main/java/service/GameService.java,e\e\ee958dc93989023d27c9ff27f8725605e0e3ad3d
 a
 1server/src/test/java/service/GameServiceTest.java,6\b\6bb1bc73f20888998a68a0cdc9965b0afd70a2d3
-a
-1server/src/test/java/service/AuthServiceTest.java,5\6\56ab5da4d01d2f34389bda04c9c180b6e003c0a6
 d
 4server/src/main/java/dataaccess/DatabaseManager.java,f\b\fb7cdb568d97831984b27de21950263d16967a67

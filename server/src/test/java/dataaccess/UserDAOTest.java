@@ -2,7 +2,6 @@ package dataaccess;
 
 import model.UserData;
 import org.junit.jupiter.api.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +15,7 @@ class UserDAOTest {
     }
 
     @Test
-    void createUser_success() throws DataAccessException {
+    void createUserSuccess() throws DataAccessException {
         // Positive test
         UserData user = new UserData("testUser", "password123", "test@example.com");
         userDAO.createUser(user);
@@ -29,7 +28,7 @@ class UserDAOTest {
     }
 
     @Test
-    void createUser_duplicate() throws DataAccessException {
+    void createUserDuplicate() throws DataAccessException {
         // Negative test
         UserData user = new UserData("testUser", "password123", "test@example.com");
         userDAO.createUser(user);
@@ -39,7 +38,7 @@ class UserDAOTest {
     }
 
     @Test
-    void getUser_success() throws DataAccessException {
+    void getUserSuccess() throws DataAccessException {
         // Positive test
         UserData user = new UserData("testUser", "password123", "test@example.com");
         userDAO.createUser(user);
@@ -52,14 +51,14 @@ class UserDAOTest {
     }
 
     @Test
-    void getUser_nonExistent() throws DataAccessException {
+    void getUserNonExistent() throws DataAccessException {
         // Negative test
         UserData retrievedUser = userDAO.getUser("nonExistentUser");
         assertNull(retrievedUser);
     }
 
     @Test
-    void clear_success() throws DataAccessException {
+    void clearSuccess() throws DataAccessException {
         // Positive test
         UserData user = new UserData("testUser", "password123", "test@example.com");
         userDAO.createUser(user);
