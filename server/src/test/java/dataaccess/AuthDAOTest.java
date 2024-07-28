@@ -27,12 +27,14 @@ class AuthDAOTest {
     @Test
     void createAuthSuccess() throws DataAccessException {
         // Positive test
-        AuthData testCreateAuth = createTestAuth();
+        String authToken = UUID.randomUUID().toString();
+        String username = "testUser";
+        authDAO.createAuth(authToken, username);
 
-        AuthData retrievedCreateAuth = authDAO.getAuth(testCreateAuth.authToken());
-        assertNotNull(retrievedCreateAuth);
-        assertEquals(testCreateAuth.authToken(), retrievedCreateAuth.authToken());
-        assertEquals(testCreateAuth.username(), retrievedCreateAuth.username());
+        AuthData retrievedAuth = authDAO.getAuth(authToken);
+        assertNotNull(retrievedAuth);
+        assertEquals(authToken, retrievedAuth.authToken());
+        assertEquals(username, retrievedAuth.username());
     }
 
     @Test
@@ -46,12 +48,19 @@ class AuthDAOTest {
     @Test
     void getAuthSuccess() throws DataAccessException {
         // Positive test
-        AuthData testGetAuth = createTestAuth();
+        // First, create an auth token as if it was from a previous session
+        String authToken = UUID.randomUUID().toString();
+        String username = "testUser";
+        authDAO.createAuth(authToken, username);
 
-        AuthData retrievedGetAuth = authDAO.getAuth(testGetAuth.authToken());
-        assertNotNull(retrievedGetAuth);
-        assertEquals(testGetAuth.authToken(), retrievedGetAuth.authToken());
-        assertEquals(testGetAuth.username(), retrievedGetAuth.username());
+        // Clear the DAO to simulate a new session
+        authDAO = new MySqlAuthDAO();
+
+        // Now try to retrieve the auth token
+        AuthData retrievedAuth = authDAO.getAuth(authToken);
+        assertNotNull(retrievedAuth);
+        assertEquals(authToken, retrievedAuth.authToken());
+        assertEquals(username, retrievedAuth.username());
     }
 
     @Test
@@ -90,12 +99,5 @@ class AuthDAOTest {
         authDAO.clear();
         AuthData retrievedAuth = authDAO.getAuth(authToken);
         assertNull(retrievedAuth);
-    }
-
-    private AuthData createTestAuth() throws DataAccessException {
-        String authToken = UUID.randomUUID().toString();
-        String username = "testUser";
-        authDAO.createAuth(authToken, username);
-        return new AuthData(authToken, username);
     }
 }
