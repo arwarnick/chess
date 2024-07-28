@@ -27,12 +27,12 @@ class AuthDAOTest {
     @Test
     void createAuthSuccess() throws DataAccessException {
         // Positive test
-        AuthData testAuth = createTestAuth();
+        AuthData testCreateAuth = createTestAuth();
 
-        AuthData retrievedAuth = authDAO.getAuth(testAuth.authToken());
-        assertNotNull(retrievedAuth);
-        assertEquals(testAuth.authToken(), retrievedAuth.authToken());
-        assertEquals(testAuth.username(), retrievedAuth.username());
+        AuthData retrievedCreateAuth = authDAO.getAuth(testCreateAuth.authToken());
+        assertNotNull(retrievedCreateAuth);
+        assertEquals(testCreateAuth.authToken(), retrievedCreateAuth.authToken());
+        assertEquals(testCreateAuth.username(), retrievedCreateAuth.username());
     }
 
     @Test
@@ -46,12 +46,12 @@ class AuthDAOTest {
     @Test
     void getAuthSuccess() throws DataAccessException {
         // Positive test
-        AuthData testAuth = createTestAuth();
+        AuthData testGetAuth = createTestAuth();
 
-        AuthData retrievedAuth = authDAO.getAuth(testAuth.authToken());
-        assertNotNull(retrievedAuth);
-        assertEquals(testAuth.authToken(), retrievedAuth.authToken());
-        assertEquals(testAuth.username(), retrievedAuth.username());
+        AuthData retrievedGetAuth = authDAO.getAuth(testGetAuth.authToken());
+        assertNotNull(retrievedGetAuth);
+        assertEquals(testGetAuth.authToken(), retrievedGetAuth.authToken());
+        assertEquals(testGetAuth.username(), retrievedGetAuth.username());
     }
 
     @Test
