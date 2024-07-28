@@ -63,8 +63,6 @@ a
 1server/src/test/java/service/UserServiceTest.java,f\8\f83e2b8b7a9719d4425a9cc2599f40c240264d67
 ]
 -server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
-]
--server/src/main/java/service/UserService.java,a\8\a8700e81e1eb2180e7427c199a2e2a92de0b6161
 W
 'server/src/main/java/server/Server.java,8\0\8036b8cb9ce2e6760f04e2a3b475b260935bb7b8
 ]
