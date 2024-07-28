@@ -2,6 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -34,13 +35,10 @@ class GameDAOTest {
     }
 
     @Test
-    void createGame_duplicate() throws DataAccessException {
+    void createGame_invalidData() {
         // Negative test
-        GameData game1 = new GameData(0, null, null, "Test Game", new ChessGame());
-        gameDAO.createGame(game1);
-
-        GameData game2 = new GameData(0, null, null, "Test Game", new ChessGame());
-        assertThrows(DataAccessException.class, () -> gameDAO.createGame(game2));
+        GameData invalidGame = new GameData(0, "nonexistentuser", null, null, null);
+        assertThrows(DataAccessException.class, () -> gameDAO.createGame(invalidGame));
     }
 
     @Test
@@ -86,6 +84,11 @@ class GameDAOTest {
     @Test
     void updateGame_success() throws DataAccessException {
         // Positive test
+        UserDAO userDAO = new MySqlUserDAO();
+        // Create test users
+        userDAO.createUser(new UserData("white", "password", "white@example.com"));
+        userDAO.createUser(new UserData("black", "password", "black@example.com"));
+
         GameData game = new GameData(0, null, null, "Test Game", new ChessGame());
         gameDAO.createGame(game);
 
