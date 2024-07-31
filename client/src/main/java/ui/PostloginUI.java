@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ServerFacade;
 import model.GameData;
 import result.CreateGameResult;
@@ -106,7 +107,6 @@ public class PostloginUI {
         System.out.print("Enter color (WHITE/BLACK): ");
         String color = scanner.nextLine().toUpperCase();
         try {
-            // Assuming we need to fetch the game ID from the list of games
             ListGamesResult games = server.listGames(authToken);
             if (gameNumber <= 0 || gameNumber > games.games().size()) {
                 throw new IllegalArgumentException("Invalid game number");
@@ -114,7 +114,11 @@ public class PostloginUI {
             int gameId = games.games().get(gameNumber - 1).gameID();
             server.joinGame(color, gameId, authToken);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game." + EscapeSequences.RESET_TEXT_COLOR);
-            // Here you would transition to the game play UI
+
+            ChessGame.TeamColor playerColor = color.equals("WHITE") ? ChessGame.TeamColor.WHITE :
+                    color.equals("BLACK") ? ChessGame.TeamColor.BLACK : null;
+            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, playerColor);
+            gameplayUI.run();
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
@@ -124,7 +128,6 @@ public class PostloginUI {
         System.out.print("Enter game number to observe: ");
         int gameNumber = Integer.parseInt(scanner.nextLine());
         try {
-            // Assuming we need to fetch the game ID from the list of games
             ListGamesResult games = server.listGames(authToken);
             if (gameNumber <= 0 || gameNumber > games.games().size()) {
                 throw new IllegalArgumentException("Invalid game number");
@@ -132,7 +135,9 @@ public class PostloginUI {
             int gameId = games.games().get(gameNumber - 1).gameID();
             server.joinGame(null, gameId, authToken);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game as an observer." + EscapeSequences.RESET_TEXT_COLOR);
-            // Here you would transition to the game play UI in observer mode
+
+            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, null);
+            gameplayUI.run();
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }
