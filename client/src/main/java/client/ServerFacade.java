@@ -1,17 +1,13 @@
 package client;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameData;
 import request.*;
 import result.*;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 
 public class ServerFacade {
     private final String serverUrl;

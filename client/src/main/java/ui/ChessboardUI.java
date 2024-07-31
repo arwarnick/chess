@@ -3,7 +3,6 @@ package ui;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import ui.EscapeSequences;
 
 import java.util.Map;
 

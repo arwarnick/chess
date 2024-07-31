@@ -5,7 +5,6 @@ import client.ServerFacade;
 import model.GameData;
 import result.CreateGameResult;
 import result.ListGamesResult;
-import ui.EscapeSequences;
 
 import java.util.Scanner;
 

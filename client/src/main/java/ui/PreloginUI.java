@@ -3,7 +3,6 @@ package ui;
 import client.ServerFacade;
 import result.LoginResult;
 import result.RegisterResult;
-import ui.EscapeSequences;
 
 import java.util.Scanner;
 
@@ -11,12 +10,12 @@ public class PreloginUI {
     private final ServerFacade server;
     private final Scanner scanner;
 
-    public PreloginUI(String serverUrl) {
-        this.server = new ServerFacade(serverUrl);
+    public PreloginUI(ServerFacade server) {
+        this.server = server;
         this.scanner = new Scanner(System.in);
     }
 
-    public void run() {
+    public LoginResult run() {
         System.out.println(EscapeSequences.WHITE_KING + " Welcome to the Chess Game! " + EscapeSequences.WHITE_KING);
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "Enter a command (Type 'help' for options): " + EscapeSequences.RESET_TEXT_COLOR);
@@ -27,15 +26,17 @@ public class PreloginUI {
                     break;
                 case "quit":
                     System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Thanks for playing! Goodbye." + EscapeSequences.RESET_TEXT_COLOR);
-                    return;
+                    return null;
                 case "login":
-                    if (login()) {
-                        return; // Exit prelogin if login successful
+                    LoginResult loginResult = login();
+                    if (loginResult != null) {
+                        return loginResult;
                     }
                     break;
                 case "register":
-                    if (register()) {
-                        return; // Exit prelogin if registration successful
+                    LoginResult registerResult = register();
+                    if (registerResult != null) {
+                        return registerResult;
                     }
                     break;
                 default:
@@ -45,14 +46,20 @@ public class PreloginUI {
     }
 
     private void displayHelp() {
+
         System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Available commands:" + EscapeSequences.RESET_TEXT_COLOR);
+
         System.out.println("  help     - Display available commands");
+
         System.out.println("  quit     - Exit the program");
+
         System.out.println("  login    - Log in to an existing account");
+
         System.out.println("  register - Create a new account");
+
     }
 
-    private boolean login() {
+    private LoginResult login() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
@@ -61,14 +68,14 @@ public class PreloginUI {
         try {
             LoginResult result = server.login(username, password);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Login successful. Welcome, " + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
-            return true;
+            return result;
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Login failed: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
-            return false;
+            return null;
         }
     }
 
-    private boolean register() {
+    private LoginResult register() {
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
         System.out.print("Enter password: ");
@@ -79,10 +86,10 @@ public class PreloginUI {
         try {
             RegisterResult result = server.register(username, password, email);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Registration successful. Welcome, " + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
-            return true;
+            return new LoginResult(result.username(), result.authToken());
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Registration failed: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
-            return false;
+            return null;
         }
     }
 }

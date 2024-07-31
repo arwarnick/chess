@@ -2,7 +2,6 @@ package ui;
 
 import chess.*;
 import client.ServerFacade;
-import ui.EscapeSequences;
 
 import java.util.Collection;
 import java.util.Scanner;
