@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import model.GameData;
 import request.*;
 import result.*;
 
@@ -97,6 +98,17 @@ public class ServerFacade {
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         handleResponse(response);
+    }
+
+    public GameData getGame(int gameId, String authToken) throws Exception {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/game?id=" + gameId))
+                .GET()
+                .header("Authorization", authToken)
+                .build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        handleResponse(response);
+        return gson.fromJson(response.body(), GameData.class);
     }
 
     private void handleResponse(HttpResponse<String> response) throws Exception {

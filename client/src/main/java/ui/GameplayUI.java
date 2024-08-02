@@ -2,6 +2,8 @@ package ui;
 
 import chess.*;
 import client.ServerFacade;
+import model.GameData;
+import ui.EscapeSequences;
 
 import java.util.Collection;
 import java.util.Scanner;
@@ -10,7 +12,7 @@ public class GameplayUI {
     private final ServerFacade server;
     private final String authToken;
     private final int gameId;
-    private final ChessGame game;
+    private ChessGame game;
     private final ChessboardUI boardUI;
     private final Scanner scanner;
     private final boolean isObserver;
@@ -20,11 +22,21 @@ public class GameplayUI {
         this.server = server;
         this.authToken = authToken;
         this.gameId = gameId;
-        this.game = new ChessGame();
         this.boardUI = new ChessboardUI();
         this.scanner = new Scanner(System.in);
         this.isObserver = (playerColor == null);
         this.playerColor = playerColor;
+        initializeGame();
+    }
+
+    private void initializeGame() {
+        try {
+            GameData gameData = server.getGame(gameId, authToken);
+            this.game = gameData.game();
+        } catch (Exception e) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to initialize game: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            this.game = new ChessGame(); // Fallback to a new game if fetching fails
+        }
     }
 
     public void run() {
