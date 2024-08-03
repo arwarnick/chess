@@ -12,12 +12,19 @@ public class Main {
     }
 
     private static void runApplication(ServerFacade server) {
-        PreloginUI preloginUI = new PreloginUI(server);
-        LoginResult loginResult = preloginUI.run();
+        boolean running = true;
+        while (running) {
+            PreloginUI preloginUI = new PreloginUI(server);
+            LoginResult loginResult = preloginUI.run();
 
-        if (loginResult != null) {
-            PostloginUI postloginUI = new PostloginUI(server, loginResult.authToken());
-            postloginUI.run();
+            if (loginResult != null) {
+                PostloginUI postloginUI = new PostloginUI(server, loginResult.authToken());
+                boolean loggedIn = postloginUI.run();
+                if (!loggedIn) {
+                    continue;
+                }
+            }
+            running = false;
         }
 
         System.out.println("Thank you for using the Chess Client. Goodbye!");

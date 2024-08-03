@@ -19,7 +19,7 @@ public class PostloginUI {
         this.authToken = authToken;
     }
 
-    public void run() {
+    public boolean run() {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Welcome to the Chess Game!" + EscapeSequences.RESET_TEXT_COLOR);
         while (true) {
             System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN + "Enter a command (Type 'help' for options): " + EscapeSequences.RESET_TEXT_COLOR);
@@ -30,9 +30,11 @@ public class PostloginUI {
                     break;
                 case "logout":
                     if (logout()) {
-                        return;
+                        return false;
                     }
                     break;
+                case "quit":
+                    return true;
                 case "create":
                     createGame();
                     break;
