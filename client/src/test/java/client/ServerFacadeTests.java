@@ -29,6 +29,29 @@ class ServerFacadeTests {
     }
 
     @Test
+    void clearPositive() throws Exception {
+        // First, add some data to the server
+        facade.register("testUser", "password", "test@email.com");
+        facade.createGame("testGame", facade.login("testUser", "password").authToken());
+
+        // Now clear the database
+        assertDoesNotThrow(() -> facade.clear());
+
+        // Verify that the database is empty by trying to log in with the previously created user
+        assertThrows(Exception.class, () -> facade.login("testUser", "password"));
+    }
+
+    @Test
+    void clearNegative() {
+        // The clear method doesn't have a true negative case as it should always succeed
+        // However, we can test that calling clear multiple times doesn't cause issues
+        assertDoesNotThrow(() -> {
+            facade.clear();
+            facade.clear(); // Second call should not throw an exception
+        });
+    }
+
+    @Test
     void registerPositive() throws Exception {
         var result = facade.register("player1", "password", "p1@email.com");
         assertNotNull(result.authToken());
@@ -111,8 +134,6 @@ class ServerFacadeTests {
     void getGamePositive() throws Exception {
         var auth = facade.register("player1", "password", "p1@email.com");
         var gameResult = facade.createGame("testGame", auth.authToken());
-
-        System.out.println("Created game with ID: " + gameResult.gameID());
 
         var game = facade.getGame(gameResult.gameID(), auth.authToken());
 
