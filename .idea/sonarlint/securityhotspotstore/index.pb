@@ -13,8 +13,6 @@ Bshared/src/test/java/passoff/chess/extracredit/EnPassantTests.java,a\0\a075079
 ,server/src/main/java/result/ErrorResult.java,1\8\18c877ca0508da4b0b55200b5517aacb581819b6
 \
 ,server/src/main/java/result/LoginResult.java,2\2\22fe9902d2cac00eba37ce085ae3a531b3096da7
-X
-(shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
 i
 9shared/src/test/java/passoff/chess/game/FullGameTest.java,3\0\304a628b79462cebf64407482375f8e693e3f5cc
 l
@@ -61,8 +59,6 @@ a
 1server/src/test/java/service/UserServiceTest.java,f\8\f83e2b8b7a9719d4425a9cc2599f40c240264d67
 ]
 -server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
-]
--server/src/main/java/service/GameService.java,e\e\ee958dc93989023d27c9ff27f8725605e0e3ad3d
 a
 1server/src/test/java/service/GameServiceTest.java,6\b\6bb1bc73f20888998a68a0cdc9965b0afd70a2d3
 d

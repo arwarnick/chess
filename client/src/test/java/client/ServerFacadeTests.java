@@ -2,9 +2,6 @@ package client;
 
 import org.junit.jupiter.api.*;
 import server.Server;
-import result.*;
-import model.GameData;
-import chess.ChessGame;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -114,9 +111,13 @@ class ServerFacadeTests {
     void getGamePositive() throws Exception {
         var auth = facade.register("player1", "password", "p1@email.com");
         var gameResult = facade.createGame("testGame", auth.authToken());
+
+        System.out.println("Created game with ID: " + gameResult.gameID());
+
         var game = facade.getGame(gameResult.gameID(), auth.authToken());
-        assertNotNull(game);
-        assertEquals("testGame", game.gameName());
+
+        assertNotNull(game, "Game should not be null");
+        assertEquals("testGame", game.gameName(), "Game name should match the created game name");
     }
 
     @Test

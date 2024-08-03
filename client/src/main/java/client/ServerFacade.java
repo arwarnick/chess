@@ -106,9 +106,21 @@ public class ServerFacade {
                 .GET()
                 .header("Authorization", authToken)
                 .build();
+
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
         handleResponse(response);
-        return gson.fromJson(response.body(), GameData.class);
+
+        // Parse the response as a ListGamesResult
+        ListGamesResult listResult = gson.fromJson(response.body(), ListGamesResult.class);
+
+        // Find the game with the matching ID
+        GameData gameData = listResult.games().stream()
+                .filter(game -> game.gameID() == gameId)
+                .findFirst()
+                .orElseThrow(() -> new Exception("Game not found"));
+
+        return gameData;
     }
 
     private void handleResponse(HttpResponse<String> response) throws Exception {
