@@ -49,6 +49,10 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
+        if (request.CheckIfObserver()) {
+            return;
+        }
+
         ChessGame.TeamColor color = request.getTeamColor();
         if (color == null) {
             throw new DataAccessException("Error: bad request");

@@ -134,7 +134,7 @@ public class PostloginUI {
                 throw new IllegalArgumentException("Invalid game number");
             }
             int gameId = games.games().get(gameNumber - 1).gameID();
-            server.joinGame(null, gameId, authToken);
+            server.joinGame("observer", gameId, authToken);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game as an observer." + EscapeSequences.RESET_TEXT_COLOR);
 
             GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, null);

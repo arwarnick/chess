@@ -10,4 +10,14 @@ public record JoinGameRequest(String playerColor, int gameID) {
         }
         return ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
     }
+
+    public boolean CheckIfObserver () {
+        if (playerColor == null) {
+            return false;
+        }
+        if (playerColor.equals("observer")) {
+            return true;
+        }
+        return false;
+    }
 }
