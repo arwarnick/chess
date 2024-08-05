@@ -18,14 +18,16 @@ public class PreloginUI {
     public LoginResult run() {
         System.out.println(EscapeSequences.WHITE_KING + " Welcome to the Chess Game! " + EscapeSequences.WHITE_KING);
         while (true) {
-            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "Enter a command (Type 'help' for options): " + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + "Enter a command (Type 'help' for options): "
+                    + EscapeSequences.RESET_TEXT_COLOR);
             String input = scanner.nextLine().trim().toLowerCase();
             switch (input) {
                 case "help":
                     displayHelp();
                     break;
                 case "quit":
-                    System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Thanks for playing! Goodbye." + EscapeSequences.RESET_TEXT_COLOR);
+                    System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Thanks for playing! Goodbye."
+                            + EscapeSequences.RESET_TEXT_COLOR);
                     return null;
                 case "login":
                     LoginResult loginResult = login();
@@ -40,14 +42,16 @@ public class PreloginUI {
                     }
                     break;
                 default:
-                    System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid command. Type 'help' for options." + EscapeSequences.RESET_TEXT_COLOR);
+                    System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid command. Type 'help' for options."
+                            + EscapeSequences.RESET_TEXT_COLOR);
             }
         }
     }
 
     private void displayHelp() {
 
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Available commands:" + EscapeSequences.RESET_TEXT_COLOR);
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Available commands:"
+                + EscapeSequences.RESET_TEXT_COLOR);
 
         System.out.println("  help     - Display available commands");
 
@@ -67,10 +71,12 @@ public class PreloginUI {
 
         try {
             LoginResult result = server.login(username, password);
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Login successful. Welcome, " + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Login successful. Welcome, "
+                    + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
             return result;
         } catch (Exception e) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Login failed: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Login failed: " + e.getMessage()
+                    + EscapeSequences.RESET_TEXT_COLOR);
             return null;
         }
     }
@@ -85,10 +91,12 @@ public class PreloginUI {
 
         try {
             RegisterResult result = server.register(username, password, email);
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Registration successful. Welcome, " + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Registration successful. Welcome, "
+                    + result.username() + "!" + EscapeSequences.RESET_TEXT_COLOR);
             return new LoginResult(result.username(), result.authToken());
         } catch (Exception e) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Registration failed: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Registration failed: "
+                    + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
             return null;
         }
     }
