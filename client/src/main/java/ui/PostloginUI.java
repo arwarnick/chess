@@ -116,10 +116,13 @@ public class PostloginUI {
             server.joinGame(color, gameId, authToken);
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game." + EscapeSequences.RESET_TEXT_COLOR);
 
-            ChessGame.TeamColor playerColor = color.equals("WHITE") ? ChessGame.TeamColor.WHITE :
-                    color.equals("BLACK") ? ChessGame.TeamColor.BLACK : null;
-            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, playerColor);
-            gameplayUI.run();
+            // Display the initial game state
+            GameData gameData = server.getGame(gameId, authToken);
+            ChessGame game = gameData.game();
+            ChessboardUI boardUI = new ChessboardUI();
+            boardUI.displayBoard(game);
+
+            // Do not enter GameplayUI, just return to PostloginUI
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: " + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
         }

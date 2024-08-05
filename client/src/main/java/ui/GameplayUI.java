@@ -80,8 +80,17 @@ public class GameplayUI {
 
     private void displayGame() {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Current Game State:" + EscapeSequences.RESET_TEXT_COLOR);
-        boardUI.displayBoard(game, playerColor == ChessGame.TeamColor.WHITE);
+
+        ChessboardUI boardUI = new ChessboardUI();
+        boardUI.displayBoard(game);
+
         System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + "Current turn: " + game.getTeamTurn() + EscapeSequences.RESET_TEXT_COLOR);
+
+        if (isObserver) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "You are observing this game." + EscapeSequences.RESET_TEXT_COLOR);
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "You are playing as " + playerColor + "." + EscapeSequences.RESET_TEXT_COLOR);
+        }
     }
 
     private void displayHelp() {
