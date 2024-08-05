@@ -67,7 +67,9 @@ public class GameplayUI {
                     makeMove();
                     break;
                 case "resign":
-                    if (resign()) return;
+                    if (resign()) {
+                        return;
+                    }
                     break;
                 case "redraw":
                     // No action needed, the board will be redrawn in the next loop iteration

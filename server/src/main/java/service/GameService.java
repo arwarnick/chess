@@ -49,7 +49,7 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
-        if (request.CheckIfObserver()) {
+        if (request.checkIfObserver()) {
             return;
         }
 

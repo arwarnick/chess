@@ -11,7 +11,7 @@ public record JoinGameRequest(String playerColor, int gameID) {
         return ChessGame.TeamColor.valueOf(playerColor.toUpperCase());
     }
 
-    public boolean CheckIfObserver () {
+    public boolean checkIfObserver() {
         if (playerColor == null) {
             return false;
         }
