@@ -85,8 +85,8 @@ public class PostloginUI {
         String gameName = scanner.nextLine();
         try {
             CreateGameResult result = server.createGame(gameName, authToken);
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Game created successfully. Game ID: "
-                    + result.gameID() + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Game created successfully."
+                    + EscapeSequences.RESET_TEXT_COLOR);
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to create game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
@@ -113,10 +113,28 @@ public class PostloginUI {
     }
 
     private void joinGame() {
-        System.out.print("Enter game number: ");
-        int gameNumber = Integer.parseInt(scanner.nextLine());
-        System.out.print("Enter color (WHITE/BLACK): ");
-        String color = scanner.nextLine().toUpperCase();
+        int gameNumber = -1;
+        while (gameNumber == -1) {
+            System.out.print("Enter game number: ");
+            String input = scanner.nextLine();
+            try {
+                gameNumber = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid input. Please enter a number."
+                        + EscapeSequences.RESET_TEXT_COLOR);
+            }
+        }
+
+        String color = "";
+        while (!color.equals("WHITE") && !color.equals("BLACK")) {
+            System.out.print("Enter color (WHITE/BLACK): ");
+            color = scanner.nextLine().toUpperCase();
+            if (!color.equals("WHITE") && !color.equals("BLACK")) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid color. Please enter WHITE or BLACK."
+                        + EscapeSequences.RESET_TEXT_COLOR);
+            }
+        }
+
         try {
             ListGamesResult games = server.listGames(authToken);
             if (gameNumber <= 0 || gameNumber > games.games().size()) {
@@ -141,8 +159,18 @@ public class PostloginUI {
     }
 
     private void observeGame() {
-        System.out.print("Enter game number to observe: ");
-        int gameNumber = Integer.parseInt(scanner.nextLine());
+        int gameNumber = -1;
+        while (gameNumber == -1) {
+            System.out.print("Enter game number to observe: ");
+            String input = scanner.nextLine();
+            try {
+                gameNumber = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid input. Please enter a number."
+                        + EscapeSequences.RESET_TEXT_COLOR);
+            }
+        }
+
         try {
             ListGamesResult games = server.listGames(authToken);
             if (gameNumber <= 0 || gameNumber > games.games().size()) {
@@ -153,8 +181,13 @@ public class PostloginUI {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game as an observer."
                     + EscapeSequences.RESET_TEXT_COLOR);
 
-            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, null);
-            gameplayUI.run();
+            // Display the game state
+            GameData gameData = server.getGame(gameId, authToken);
+            ChessGame game = gameData.game();
+            ChessboardUI boardUI = new ChessboardUI();
+
+            boardUI.displayBoard(game);
+
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
