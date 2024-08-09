@@ -1,0 +1,18 @@
+
+U	java:S106"9Replace this use of System.out or System.err by a logger.(«•ÆÆ8ŒşÏ×2
+T	java:S106"9Replace this use of System.out or System.err by a logger.(¤¬R8ŒşÏ×2
+U	java:S106"9Replace this use of System.out or System.err by a logger.(´¨È›8şÏ×2
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(£§…ûúÿÿÿÿ8şÏ×2
+U	java:S106 "9Replace this use of System.out or System.err by a logger.(òˆñ¹8şÏ×2
+U	java:S106#"9Replace this use of System.out or System.err by a logger.(´¨È›8£ÍÓ‚’2
+U	java:S106'"9Replace this use of System.out or System.err by a logger.(¾ÿ’Ù8Ë´Û‚’2
+Z	java:S106*"9Replace this use of System.out or System.err by a logger.(£§…ûúÿÿÿÿ8Ğ¯İ‚’2
+U	java:S1061"9Replace this use of System.out or System.err by a logger.(òˆñ¹8Ğ¯İ‚’2
+U	java:S1064"9Replace this use of System.out or System.err by a logger.(¾ÿ’Ù8Ğ¯İ‚’2
+Z	java:S1069"9Replace this use of System.out or System.err by a logger.(âÏšÍÿÿÿÿÿ8‡ñ™ƒ’2
+U	java:S106<"9Replace this use of System.out or System.err by a logger.(×•œ²8ˆñ™ƒ’2
+c
+java:S3457A"AFormat specifiers should be used instead of string concatenation.(ß¥¡Áøÿÿÿÿ8ˆñ™ƒ’2
+Z	java:S106A"9Replace this use of System.out or System.err by a logger.(ß¥¡Áøÿÿÿÿ8ˆñ™ƒ’2
+Z	java:S106D"9Replace this use of System.out or System.err by a logger.(Úºö÷üÿÿÿÿ8ˆñ™ƒ’2
+Z	java:S106E"9Replace this use of System.out or System.err by a logger.(¼æ³øùÿÿÿÿ8ˆñ™ƒ’2
