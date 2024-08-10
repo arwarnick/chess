@@ -29,8 +29,6 @@ Z
 *shared/src/main/java/chess/ChessPiece.java,c\0\c02b93065e1c720b0a958f6a9aa91f709ca1cca9
 A
 server/server.iml,3\f\3f335f11ae5914540a6aba5f5129f694b55a8d87
-f
-6server/src/test/java/passoff/server/DatabaseTests.java,f\e\fe756adf1db32cf19b0ba4465213263dea6b150d
 >
 server/pom.xml,0\8\08a8b343eb3d041b4e874e74bf19e4275b4be110
 a
@@ -65,8 +63,6 @@ a
 0server/src/test/java/dataaccess/AuthDAOTest.java,6\9\698548862c2d749b592e6eaee8ce2245605fb6f3
 X
 (shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
-b
-2client/src/test/java/client/ServerFacadeTests.java,e\6\e6826acb161285e1dab795e5cfe93be0d16ca8b4
 N
 client/src/main/java/Main.java,e\c\ecb7a1924b25558f5bedb6f53e4d6092557bd541
 i
@@ -75,8 +71,6 @@ a
 1server/src/test/java/service/GameServiceTest.java,6\b\6bb1bc73f20888998a68a0cdc9965b0afd70a2d3
 ]
 -client/src/main/java/client/ServerFacade.java,5\b\5bd64cfd26161b763663e9d940febeb7f9d2d1ad
-W
-'server/src/main/java/server/Server.java,8\0\8036b8cb9ce2e6760f04e2a3b475b260935bb7b8
 Y
 )shared/src/main/java/chess/ChessGame.java,1\2\12ee2b2e0577bf40c2f0f09ceb1e2b3d9b36bd7a
 ]

@@ -383,7 +383,7 @@ public class WebSocketTests {
         } catch(AssertionError e) {
             e.printStackTrace();
             Assertions.fail("Expected message types matching %s for %s, got %s"
-                    .formatted(Arrays.toString(expectedTypes), username, messages.reversed()));
+                    .formatted(Arrays.toString(expectedTypes), username, messages));
         }
     }
 
