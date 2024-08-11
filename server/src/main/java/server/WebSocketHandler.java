@@ -92,20 +92,21 @@ public class WebSocketHandler {
         GameData updatedGame = gameService.makeMove(gameID, authToken, move);
 
         // Send LOAD_GAME messages to all clients in the game
-        sendToGame(gameID, new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, updatedGame));
+        sendToGame(gameID, createLoadGameMessage(updatedGame));
 
         // Send NOTIFICATION messages about the move
         String username = gameService.getUsernameFromAuthToken(authToken);
         sendNotificationToAll(gameID, username + " made a move: " + move.toString());
 
         // Check for check, checkmate, or stalemate
-        if (updatedGame.game().isInCheck(updatedGame.game().getTeamTurn())) {
+        ChessGame chess = updatedGame.game();
+        if (chess.isInCheck(chess.getTeamTurn())) {
             sendNotificationToAll(gameID, "Check!");
         }
-        if (updatedGame.game().isInCheckmate(updatedGame.game().getTeamTurn())) {
+        if (chess.isInCheckmate(chess.getTeamTurn())) {
             sendNotificationToAll(gameID, "Checkmate! " + username + " wins!");
         }
-        if (updatedGame.game().isInStalemate(updatedGame.game().getTeamTurn())) {
+        if (chess.isInStalemate(chess.getTeamTurn())) {
             sendNotificationToAll(gameID, "Stalemate! The game is a draw.");
         }
     }
@@ -138,17 +139,25 @@ public class WebSocketHandler {
     }
 
     private void sendLoadGame(Session session, GameData game) {
-        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        ServerMessage loadGameMessage = createLoadGameMessage(game);
         sendMessage(session, loadGameMessage);
     }
 
+    private ServerMessage createLoadGameMessage(GameData game) {
+        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        loadGameMessage.setGame(game);
+        return loadGameMessage;
+    }
+
     private void sendNotificationToAll(int gameID, String message) {
-        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notificationMessage.setMessage(message);
         sendToGame(gameID, notificationMessage);
     }
 
     private void sendNotificationToOthers(int gameID, Session excludeSession, String message) {
-        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notificationMessage.setMessage(message);
         Set<Session> sessions = gameSessions.get(gameID);
         if (sessions != null) {
             for (Session session : sessions) {
@@ -177,7 +186,8 @@ public class WebSocketHandler {
     }
 
     private void sendErrorMessage(Session session, String errorMessage) {
-        ServerMessage error = new ServerMessage(ServerMessage.ServerMessageType.ERROR, errorMessage);
+        ServerMessage error = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+        error.setErrorMessage(errorMessage);
         sendMessage(session, error);
     }
 }

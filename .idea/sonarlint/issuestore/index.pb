@@ -71,8 +71,6 @@ Y
 )shared/src/main/java/chess/ChessGame.java,1\2\12ee2b2e0577bf40c2f0f09ceb1e2b3d9b36bd7a
 a
 1server/src/test/java/service/GameServiceTest.java,6\b\6bb1bc73f20888998a68a0cdc9965b0afd70a2d3
-]
--server/src/main/java/service/GameService.java,e\e\ee958dc93989023d27c9ff27f8725605e0e3ad3d
 \
 ,client/src/main/java/ui/EscapeSequences.java,b\6\b6823e781e53d487887c1ba9760d63892cdd044c
 Y
