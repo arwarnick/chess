@@ -139,7 +139,8 @@ public class WebSocketHandler {
     }
 
     private void sendLoadGame(Session session, GameData game) {
-        ServerMessage loadGameMessage = createLoadGameMessage(game);
+        ServerMessage loadGameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        loadGameMessage.setGame(game);
         sendMessage(session, loadGameMessage);
     }
 
