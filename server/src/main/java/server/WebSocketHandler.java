@@ -58,7 +58,7 @@ public class WebSocketHandler {
                 default -> sendErrorMessage(session, "Unknown command type");
             }
         } catch (Exception e) {
-            sendErrorMessage(session, e.getMessage());
+            sendErrorMessage(session, "Error: " + e.getMessage());
         }
     }
 
@@ -66,10 +66,19 @@ public class WebSocketHandler {
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();
 
-        // Validate authToken and gameID
+        // Validate authToken first
+        try {
+            gameService.getUsernameFromAuthToken(authToken);
+        } catch (Exception e) {
+            sendErrorMessage(session, "Error: unauthorized");
+            return;
+        }
+
+        // Proceed with game validation and connection
         GameData game = gameService.getGame(gameID);
         if (game == null) {
-            throw new Exception("Invalid game ID");
+            sendErrorMessage(session, "Invalid game ID");
+            return;
         }
 
         // Add the session to the game's session set

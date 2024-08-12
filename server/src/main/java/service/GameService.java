@@ -60,21 +60,20 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
-        if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) {
+        // Check if the requested color is available
+        if ((color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) ||
+                (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null)) {
+            GameData updatedGame = new GameData(
+                    game.gameID(),
+                    color == ChessGame.TeamColor.WHITE ? authData.username() : game.whiteUsername(),
+                    color == ChessGame.TeamColor.BLACK ? authData.username() : game.blackUsername(),
+                    game.gameName(),
+                    game.game()
+            );
+            gameDAO.updateGame(updatedGame);
+        } else {
             throw new DataAccessException("Error: already taken");
         }
-        if (color == ChessGame.TeamColor.BLACK && game.blackUsername() != null) {
-            throw new DataAccessException("Error: already taken");
-        }
-
-        GameData updatedGame = new GameData(
-                game.gameID(),
-                color == ChessGame.TeamColor.WHITE ? authData.username() : game.whiteUsername(),
-                color == ChessGame.TeamColor.BLACK ? authData.username() : game.blackUsername(),
-                game.gameName(),
-                game.game()
-        );
-        gameDAO.updateGame(updatedGame);
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException {
@@ -145,6 +144,14 @@ public class GameService {
         GameData game = gameDAO.getGame(gameID);
         if (game == null) {
             throw new DataAccessException("Error: game not found");
+        }
+
+        // Check if the game is already over
+        if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                game.game().isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                game.game().isInStalemate(ChessGame.TeamColor.WHITE) ||
+                game.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+            throw new DataAccessException("Error: game is already over");
         }
 
         // Check if the player is part of the game

@@ -150,6 +150,10 @@ public class ServerFacade {
 
     public void sendCommand(UserGameCommand command) throws IOException, EncodeException {
         if (websocketSession != null && websocketSession.isOpen()) {
+            if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
+                // Serialize the move as a string
+                command.setMove(gson.toJson(command.getMove()));
+            }
             websocketSession.getBasicRemote().sendObject(gson.toJson(command));
         } else {
             throw new IOException("WebSocket is not connected");
