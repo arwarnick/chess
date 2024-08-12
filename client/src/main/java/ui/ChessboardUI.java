@@ -1,21 +1,25 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class ChessboardUI {
 
-    public void displayBoard(ChessGame game) {
+    public void displayBoard(ChessGame game, ChessGame.TeamColor perspective) {
         Map<ChessPosition, ChessPiece> board = game.getBoard().getAllPieces();
 
-        System.out.println("Black's perspective:");
-        printBoardBlackBottom(board);
-
-        System.out.println("\nWhite's perspective:");
-        printBoardWhiteBottom(board);
+        if (perspective == ChessGame.TeamColor.WHITE) {
+            System.out.println("White's perspective:");
+            printBoardWhiteBottom(board);
+        } else {
+            System.out.println("Black's perspective:");
+            printBoardBlackBottom(board);
+        }
     }
 
     private void printBoardWhiteBottom(Map<ChessPosition, ChessPiece> board) {

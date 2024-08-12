@@ -6,4 +6,8 @@ public record CreateGameResult(int gameID) {
             throw new IllegalArgumentException("Game ID must be a positive integer");
         }
     }
+
+    public int getGameID() {
+        return gameID;
+    }
 }
