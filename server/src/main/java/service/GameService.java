@@ -51,11 +51,15 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
-        if (request.playerColor() == null) {
-            return; // Joining as an observer, no need to update the game
+        if (request.checkIfObserver()) {
+            return;
         }
 
-        ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(request.playerColor().toUpperCase());
+        ChessGame.TeamColor color = request.getTeamColor();
+        if (color == null) {
+            throw new DataAccessException("Error: bad request");
+        }
+
         if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() != null) {
             throw new DataAccessException("Error: already taken");
         }

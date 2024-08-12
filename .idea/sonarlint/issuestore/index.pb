@@ -75,7 +75,5 @@ c
 .shared/src/main/java/request/LoginRequest.java,c\4\c45f0b3e50a400d31e0fdfd36079808edf7c35f6
 `
 0shared/src/main/java/result/ListGamesResult.java,4\9\49794df119d2ddcb82489d23039002efb90cc3c4
-a
-1shared/src/main/java/request/JoinGameRequest.java,4\f\4f12a51d20094c80df77521f6a849263b4221f8c
 W
 'client/src/main/java/ui/PreloginUI.java,2\a\2aa1488fc9769672bcf0db6561e714003adeabe7
