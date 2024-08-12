@@ -4,16 +4,23 @@ import com.google.gson.Gson;
 import model.GameData;
 import request.*;
 import result.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
+import javax.websocket.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.io.IOException;
 
+@ClientEndpoint
 public class ServerFacade {
     private final String serverUrl;
     private final HttpClient client;
     private final Gson gson;
+    private Session websocketSession;
+    private ServerMessageObserver observer;
 
     public ServerFacade(String url) {
         serverUrl = url;
@@ -115,17 +122,59 @@ public class ServerFacade {
         ListGamesResult listResult = gson.fromJson(response.body(), ListGamesResult.class);
 
         // Find the game with the matching ID
-        GameData gameData = listResult.games().stream()
+        return listResult.games().stream()
                 .filter(game -> game.gameID() == gameId)
                 .findFirst()
                 .orElseThrow(() -> new Exception("Game not found"));
-
-        return gameData;
     }
 
     private void handleResponse(HttpResponse<String> response) throws Exception {
         if (response.statusCode() >= 400) {
             throw new Exception(gson.fromJson(response.body(), ErrorResult.class).message());
         }
+    }
+
+    // WebSocket methods
+
+    public void connectToWebSocket(String url, ServerMessageObserver observer) throws Exception {
+        this.observer = observer;
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        this.websocketSession = container.connectToServer(this, new URI(url));
+    }
+
+    public void disconnectFromWebSocket() throws IOException {
+        if (websocketSession != null && websocketSession.isOpen()) {
+            websocketSession.close();
+        }
+    }
+
+    public void sendCommand(UserGameCommand command) throws IOException, EncodeException {
+        if (websocketSession != null && websocketSession.isOpen()) {
+            websocketSession.getBasicRemote().sendObject(gson.toJson(command));
+        } else {
+            throw new IOException("WebSocket is not connected");
+        }
+    }
+
+    @OnMessage
+    public void onMessage(String message) {
+        ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+        if (observer != null) {
+            observer.onServerMessage(serverMessage);
+        }
+    }
+
+    @OnClose
+    public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("WebSocket connection closed: " + closeReason.getReasonPhrase());
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.out.println("WebSocket error: " + throwable.getMessage());
+    }
+
+    public interface ServerMessageObserver {
+        void onServerMessage(ServerMessage message);
     }
 }

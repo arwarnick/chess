@@ -65,6 +65,7 @@ public class PostloginUI {
         System.out.println("  list    - List all games");
         System.out.println("  join    - Join a game");
         System.out.println("  observe - Observe a game");
+        System.out.println("  quit    - Exit the program");
     }
 
     private boolean logout() {
@@ -85,8 +86,8 @@ public class PostloginUI {
         String gameName = scanner.nextLine();
         try {
             CreateGameResult result = server.createGame(gameName, authToken);
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Game created successfully."
-                    + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Game created successfully. Game ID: "
+                    + result.getGameID() + EscapeSequences.RESET_TEXT_COLOR);
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to create game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
@@ -145,13 +146,9 @@ public class PostloginUI {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game."
                     + EscapeSequences.RESET_TEXT_COLOR);
 
-            // Display the initial game state
-            GameData gameData = server.getGame(gameId, authToken);
-            ChessGame game = gameData.game();
-            ChessboardUI boardUI = new ChessboardUI();
-            boardUI.displayBoard(game);
-
-            // Do not enter GameplayUI, just return to PostloginUI
+            ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(color);
+            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, teamColor);
+            gameplayUI.run();
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to join game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
@@ -181,13 +178,8 @@ public class PostloginUI {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Successfully joined the game as an observer."
                     + EscapeSequences.RESET_TEXT_COLOR);
 
-            // Display the game state
-            GameData gameData = server.getGame(gameId, authToken);
-            ChessGame game = gameData.game();
-            ChessboardUI boardUI = new ChessboardUI();
-
-            boardUI.displayBoard(game);
-
+            GameplayUI gameplayUI = new GameplayUI(server, authToken, gameId, null);
+            gameplayUI.run();
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to observe game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);

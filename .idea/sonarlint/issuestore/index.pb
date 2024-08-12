@@ -65,16 +65,10 @@ X
 (shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
 N
 client/src/main/java/Main.java,e\c\ecb7a1924b25558f5bedb6f53e4d6092557bd541
-]
--client/src/main/java/client/ServerFacade.java,5\b\5bd64cfd26161b763663e9d940febeb7f9d2d1ad
-Y
-)shared/src/main/java/chess/ChessGame.java,1\2\12ee2b2e0577bf40c2f0f09ceb1e2b3d9b36bd7a
 a
 1server/src/test/java/service/GameServiceTest.java,6\b\6bb1bc73f20888998a68a0cdc9965b0afd70a2d3
 \
 ,client/src/main/java/ui/EscapeSequences.java,b\6\b6823e781e53d487887c1ba9760d63892cdd044c
-Y
-)client/src/main/java/ui/ChessboardUI.java,2\1\21074ab2c8379065a96b02962b73e602adbf4547
 c
 3shared/src/main/java/request/CreateGameRequest.java,a\4\a456fc7f1917fef812c368555bc61e4b6e9522eb
 ^
@@ -85,5 +79,3 @@ a
 1shared/src/main/java/request/JoinGameRequest.java,4\f\4f12a51d20094c80df77521f6a849263b4221f8c
 W
 'client/src/main/java/ui/PreloginUI.java,2\a\2aa1488fc9769672bcf0db6561e714003adeabe7
-W
-'client/src/main/java/ui/GameplayUI.java,9\4\944c9b8603a018cc1defc76a74711c973acb70d7

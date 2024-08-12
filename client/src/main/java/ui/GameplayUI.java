@@ -3,11 +3,13 @@ package ui;
 import chess.*;
 import client.ServerFacade;
 import model.GameData;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.util.Collection;
 import java.util.Scanner;
 
-public class GameplayUI {
+public class GameplayUI implements ServerFacade.ServerMessageObserver {
     private final ServerFacade server;
     private final String authToken;
     private final int gameId;
@@ -32,6 +34,11 @@ public class GameplayUI {
         try {
             GameData gameData = server.getGame(gameId, authToken);
             this.game = gameData.game();
+            server.connectToWebSocket("ws://localhost:8080/ws", this);
+
+            // Send CONNECT command
+            UserGameCommand connectCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId);
+            server.sendCommand(connectCommand);
         } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Failed to initialize game: "
                     + e.getMessage() + EscapeSequences.RESET_TEXT_COLOR);
@@ -55,7 +62,6 @@ public class GameplayUI {
             if (isObserver || game.getTeamTurn() != playerColor) {
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Waiting for other player's move..."
                         + EscapeSequences.RESET_TEXT_COLOR);
-                // In a real implementation, we would wait for server updates here
                 break; // For now, we'll just exit the game loop
             }
             System.out.print(EscapeSequences.SET_TEXT_COLOR_GREEN + "Enter a command (or 'help' for options): "
@@ -79,6 +85,9 @@ public class GameplayUI {
                 case "redraw":
                     // No action needed, the board will be redrawn in the next loop iteration
                     break;
+                case "highlight":
+                    highlightMoves();
+                    break;
                 default:
                     System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid command. Type 'help' for options."
                             + EscapeSequences.RESET_TEXT_COLOR);
@@ -90,19 +99,10 @@ public class GameplayUI {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + "Current Game State:"
                 + EscapeSequences.RESET_TEXT_COLOR);
 
-        ChessboardUI boardUI = new ChessboardUI();
-        boardUI.displayBoard(game);
+        boardUI.displayBoard(game, playerColor);
 
         System.out.println(EscapeSequences.SET_TEXT_COLOR_MAGENTA + "Current turn: "
                 + game.getTeamTurn() + EscapeSequences.RESET_TEXT_COLOR);
-
-        if (isObserver) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "You are observing this game."
-                    + EscapeSequences.RESET_TEXT_COLOR);
-        } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "You are playing as " + playerColor
-                    + "." + EscapeSequences.RESET_TEXT_COLOR);
-        }
     }
 
     private void displayHelp() {
@@ -113,6 +113,7 @@ public class GameplayUI {
         System.out.println("  move   - Make a move");
         System.out.println("  resign - Resign from the game");
         System.out.println("  redraw - Redraw the game board");
+        System.out.println("  highlight - Highlight legal moves for a piece");
     }
 
     private void makeMove() {
@@ -131,9 +132,9 @@ public class GameplayUI {
                 + EscapeSequences.RESET_TEXT_COLOR);
         String moveInput = scanner.nextLine().trim().toLowerCase();
         String[] parts = moveInput.split(" ");
-        if (parts.length != 2) {
+        if (parts.length != 2 && parts.length != 3) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED
-                    + "Invalid move format. Use 'start_position end_position' (e.g., e2 e4)"
+                    + "Invalid move format. Use 'start_position end_position [promotion_piece]' (e.g., e2 e4 or e7 e8 q)"
                     + EscapeSequences.RESET_TEXT_COLOR);
             return;
         }
@@ -141,29 +142,65 @@ public class GameplayUI {
         try {
             ChessPosition startPosition = parsePosition(parts[0]);
             ChessPosition endPosition = parsePosition(parts[1]);
-
-            Collection<ChessMove> validMoves = game.validMoves(startPosition);
-            ChessMove move = null;
-            for (ChessMove validMove : validMoves) {
-                if (validMove.getEndPosition().equals(endPosition)) {
-                    move = validMove;
-                    break;
-                }
+            ChessPiece.PieceType promotionPiece = null;
+            if (parts.length == 3) {
+                promotionPiece = parsePromotionPiece(parts[2]);
             }
 
-            if (move != null) {
-                game.makeMove(move);
-                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Move made successfully."
+            ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
+
+            if (game.validMoves(startPosition).contains(move)) {
+                UserGameCommand moveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId);
+                moveCommand.setMove(moveInput);
+                server.sendCommand(moveCommand);
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Move sent to server."
                         + EscapeSequences.RESET_TEXT_COLOR);
-                // Here you would typically send the move to the server
             } else {
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid move. Please try again."
                         + EscapeSequences.RESET_TEXT_COLOR);
             }
-        } catch (InvalidMoveException e) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid move: " + e.getMessage()
+        } catch (Exception e) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error sending move: " + e.getMessage()
                     + EscapeSequences.RESET_TEXT_COLOR);
-        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    private boolean resign() {
+        if (isObserver) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Observers cannot resign."
+                    + EscapeSequences.RESET_TEXT_COLOR);
+            return false;
+        }
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? (yes/no)"
+                + EscapeSequences.RESET_TEXT_COLOR);
+        String confirmation = scanner.nextLine().trim().toLowerCase();
+        if (confirmation.equals("yes")) {
+            try {
+                UserGameCommand resignCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameId);
+                server.sendCommand(resignCommand);
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You have resigned from the game."
+                        + EscapeSequences.RESET_TEXT_COLOR);
+                return true;
+            } catch (Exception e) {
+                System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error resigning: " + e.getMessage()
+                        + EscapeSequences.RESET_TEXT_COLOR);
+            }
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Resignation cancelled."
+                    + EscapeSequences.RESET_TEXT_COLOR);
+        }
+        return false;
+    }
+
+    private void highlightMoves() {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Enter the position of the piece to highlight (e.g., e2):"
+                + EscapeSequences.RESET_TEXT_COLOR);
+        String positionInput = scanner.nextLine().trim().toLowerCase();
+        try {
+            ChessPosition position = parsePosition(positionInput);
+            Collection<ChessMove> validMoves = game.validMoves(position);
+            boardUI.displayBoardWithHighlights(game, playerColor, position, validMoves);
+        } catch (Exception e) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Invalid position. Please use algebraic notation (e.g., e2)."
                     + EscapeSequences.RESET_TEXT_COLOR);
         }
@@ -178,24 +215,46 @@ public class GameplayUI {
         return new ChessPosition(row, col);
     }
 
-    private boolean resign() {
-        if (isObserver) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Observers cannot resign."
-                    + EscapeSequences.RESET_TEXT_COLOR);
-            return false;
+    private ChessPiece.PieceType parsePromotionPiece(String pieceStr) {
+        return switch (pieceStr.toLowerCase()) {
+            case "q" -> ChessPiece.PieceType.QUEEN;
+            case "r" -> ChessPiece.PieceType.ROOK;
+            case "b" -> ChessPiece.PieceType.BISHOP;
+            case "n" -> ChessPiece.PieceType.KNIGHT;
+            default -> throw new IllegalArgumentException("Invalid promotion piece");
+        };
+    }
+
+    @Override
+    public void onServerMessage(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME:
+                handleLoadGame(message);
+                break;
+            case ERROR:
+                handleError(message);
+                break;
+            case NOTIFICATION:
+                handleNotification(message);
+                break;
         }
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Are you sure you want to resign? (yes/no)"
+    }
+
+    private void handleLoadGame(ServerMessage message) {
+        GameData updatedGame = (GameData) message.getGame();
+        if (updatedGame != null) {
+            this.game = updatedGame.game();
+            displayGame();
+        }
+    }
+
+    private void handleError(ServerMessage message) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message.getErrorMessage()
                 + EscapeSequences.RESET_TEXT_COLOR);
-        String confirmation = scanner.nextLine().trim().toLowerCase();
-        if (confirmation.equals("yes")) {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "You have resigned from the game."
-                    + EscapeSequences.RESET_TEXT_COLOR);
-            // Here you would typically notify the server about the resignation
-            return true;
-        } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Resignation cancelled."
-                    + EscapeSequences.RESET_TEXT_COLOR);
-            return false;
-        }
+    }
+
+    private void handleNotification(ServerMessage message) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_YELLOW + "Notification: " + message.getMessage()
+                + EscapeSequences.RESET_TEXT_COLOR);
     }
 }
