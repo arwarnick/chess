@@ -151,7 +151,7 @@ public class GameplayUI implements ServerFacade.ServerMessageObserver {
 
             if (game.validMoves(startPosition).contains(move)) {
                 UserGameCommand moveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId);
-                moveCommand.setMove(moveInput);
+                moveCommand.setMove1(moveInput);
                 server.sendCommand(moveCommand);
                 System.out.println(EscapeSequences.SET_TEXT_COLOR_GREEN + "Move sent to server."
                         + EscapeSequences.RESET_TEXT_COLOR);
