@@ -60,20 +60,38 @@ public class GameService {
             throw new DataAccessException("Error: bad request");
         }
 
-        // Check if the requested color is available
-        if ((color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) ||
-                (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null)) {
-            GameData updatedGame = new GameData(
-                    game.gameID(),
-                    color == ChessGame.TeamColor.WHITE ? authData.username() : game.whiteUsername(),
-                    color == ChessGame.TeamColor.BLACK ? authData.username() : game.blackUsername(),
-                    game.gameName(),
-                    game.game()
-            );
-            gameDAO.updateGame(updatedGame);
+        GameData updatedGame;
+        if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
+            updatedGame = new GameData(game.gameID(), authData.username(), game.blackUsername(), game.gameName(), game.game());
+        } else if (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
+            updatedGame = new GameData(game.gameID(), game.whiteUsername(), authData.username(), game.gameName(), game.game());
         } else {
             throw new DataAccessException("Error: already taken");
         }
+
+        gameDAO.updateGame(updatedGame);
+    }
+
+    public void leaveGame(int gameID, String authToken) throws DataAccessException {
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+
+        GameData game = gameDAO.getGame(gameID);
+        if (game == null) {
+            throw new DataAccessException("Error: game not found");
+        }
+
+        if (authData.username().equals(game.whiteUsername())) {
+            GameData updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+            gameDAO.updateGame(updatedGame);
+        } else if (authData.username().equals(game.blackUsername())) {
+            GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+            gameDAO.updateGame(updatedGame);
+        }
+        // If the user is neither white nor black player, they're an observer, so we don't need to update the game
+        // Just let them leave without throwing an exception
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException {

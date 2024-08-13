@@ -187,6 +187,9 @@ public class WebSocketHandler {
             sessions.remove(session);
         }
 
+        // Update the game state (this won't throw an exception for observers now)
+        gameService.leaveGame(gameID, authToken);
+
         // Send NOTIFICATION messages to other clients in the game
         String username = gameService.getUsernameFromAuthToken(authToken);
         sendNotificationToOthers(gameID, session, username + " has left the game.");
