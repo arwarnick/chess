@@ -97,36 +97,75 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         ChessMove move = command.getMove();
 
-        // Validate and make the move
-        GameData updatedGame = gameService.makeMove(gameID, authToken, move);
-
-        // Get the username of the player who made the move
-        String username = gameService.getUsernameFromAuthToken(authToken);
-
-        // Send LOAD_GAME message to all clients in the game
-        ServerMessage loadGameMessage = createLoadGameMessage(updatedGame);
-        Set<Session> gameSessions = this.gameSessions.get(gameID);
-        if (gameSessions != null) {
-            for (Session clientSession : gameSessions) {
-                sendMessage(clientSession, loadGameMessage);
-
-                // Send NOTIFICATION only to other players
-                if (clientSession != session) {
-                    ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    notificationMessage.setMessage(username + " made a move: " + move.toString());
-                    sendMessage(clientSession, notificationMessage);
-                }
-            }
+        // Check if the game is over
+        if (gameService.isGameOver(gameID)) {
+            sendErrorMessage(session, "Error: The game is already over");
+            return;
         }
 
-        // Check for checkmate, stalemate, or check
-        ChessGame chess = updatedGame.game();
-        if (chess.isInCheckmate(chess.getTeamTurn())) {
-            sendNotificationToAll(gameID, "Checkmate! " + username + " wins!");
-        } else if (chess.isInStalemate(chess.getTeamTurn())) {
-            sendNotificationToAll(gameID, "Stalemate! The game is a draw.");
-        } else if (chess.isInCheck(chess.getTeamTurn())) {
-            sendNotificationToAll(gameID, "Check!");
+        // Validate and make the move
+        try {
+            GameData updatedGame = gameService.makeMove(gameID, authToken, move);
+
+            // Send LOAD_GAME message to all clients in the game
+            ServerMessage loadGameMessage = createLoadGameMessage(updatedGame);
+            sendToGame(gameID, loadGameMessage);
+
+            // Get the username of the player who made the move
+            String username = gameService.getUsernameFromAuthToken(authToken);
+
+            // Send NOTIFICATION to other players
+            sendNotificationToOthers(gameID, session, username + " made a move: " + move.toString());
+
+            // Check for checkmate, stalemate, or check
+            ChessGame chess = updatedGame.game();
+            if (chess.isInCheckmate(chess.getTeamTurn())) {
+                sendNotificationToAll(gameID, "Checkmate! " + username + " wins!");
+            } else if (chess.isInStalemate(chess.getTeamTurn())) {
+                sendNotificationToAll(gameID, "Stalemate! The game is a draw.");
+            } else if (chess.isInCheck(chess.getTeamTurn())) {
+                sendNotificationToAll(gameID, "Check!");
+            }
+        } catch (Exception e) {
+            sendErrorMessage(session, "Error: " + e.getMessage());
+        }
+    }
+
+    private void handleResign(Session session, UserGameCommand command) throws Exception {
+        int gameID = command.getGameID();
+        String authToken = command.getAuthToken();
+
+        // Check if the game is already over
+        if (gameService.isGameOver(gameID)) {
+            sendErrorMessage(session, "Error: The game is already over");
+            return;
+        }
+
+        try {
+            // Update the game state
+            gameService.resignGame(gameID, authToken);
+
+            // Get the username of the resigning player
+            String username = gameService.getUsernameFromAuthToken(authToken);
+
+            // Send NOTIFICATION message to all clients in the game
+            sendNotificationToAll(gameID, username + " has resigned from the game.");
+
+            // We're not sending the updated game state to anyone
+        } catch (Exception e) {
+            sendErrorMessage(session, "Error: " + e.getMessage());
+        }
+    }
+
+    // New method to send a message to all sessions in a game except one
+    private void sendToGameExcept(int gameID, ServerMessage message, Session exceptSession) {
+        Set<Session> sessions = gameSessions.get(gameID);
+        if (sessions != null) {
+            for (Session session : sessions) {
+                if (session != exceptSession) {
+                    sendMessage(session, message);
+                }
+            }
         }
     }
 
@@ -143,18 +182,6 @@ public class WebSocketHandler {
         // Send NOTIFICATION messages to other clients in the game
         String username = gameService.getUsernameFromAuthToken(authToken);
         sendNotificationToOthers(gameID, session, username + " has left the game.");
-    }
-
-    private void handleResign(Session session, UserGameCommand command) throws Exception {
-        int gameID = command.getGameID();
-        String authToken = command.getAuthToken();
-
-        // Update the game state
-        gameService.resignGame(gameID, authToken);
-
-        // Send NOTIFICATION messages to all clients in the game
-        String username = gameService.getUsernameFromAuthToken(authToken);
-        sendNotificationToAll(gameID, username + " has resigned from the game.");
     }
 
     private void sendLoadGame(Session session, GameData game) {

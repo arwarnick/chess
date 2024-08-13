@@ -146,30 +146,22 @@ public class GameService {
             throw new DataAccessException("Error: game not found");
         }
 
-        // Check if the game is already over
-        if (game.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
+        // Mark the game as over by setting both players to null
+        GameData updatedGame = new GameData(game.gameID(), null, null, game.gameName(), game.game());
+        gameDAO.updateGame(updatedGame);
+    }
+
+    public boolean isGameOver(int gameID) throws DataAccessException {
+        GameData game = gameDAO.getGame(gameID);
+        if (game == null) {
+            throw new DataAccessException("Error: game not found");
+        }
+
+        // The game is over if both player usernames are null (resigned) or if it's in checkmate or stalemate
+        return (game.whiteUsername() == null && game.blackUsername() == null) ||
+                game.game().isInCheckmate(ChessGame.TeamColor.WHITE) ||
                 game.game().isInCheckmate(ChessGame.TeamColor.BLACK) ||
                 game.game().isInStalemate(ChessGame.TeamColor.WHITE) ||
-                game.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
-            throw new DataAccessException("Error: game is already over");
-        }
-
-        // Check if the player is part of the game
-        if (!Objects.equals(game.whiteUsername(), authData.username()) &&
-                !Objects.equals(game.blackUsername(), authData.username())) {
-            throw new DataAccessException("Error: you are not a player in this game");
-        }
-
-        // Update the game state to indicate resignation
-        // This could be done by setting a "resigned" flag in the ChessGame class
-        // or by updating the GameData to include a resignation status
-        // For now, we'll just remove the resigning player from the game
-        if (Objects.equals(game.whiteUsername(), authData.username())) {
-            game = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
-        } else {
-            game = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
-        }
-
-        gameDAO.updateGame(game);
+                game.game().isInStalemate(ChessGame.TeamColor.BLACK);
     }
 }
