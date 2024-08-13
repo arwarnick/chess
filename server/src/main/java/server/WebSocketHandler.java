@@ -142,16 +142,24 @@ public class WebSocketHandler {
         }
 
         try {
-            // Update the game state
-            gameService.resignGame(gameID, authToken);
-
             // Get the username of the resigning player
             String username = gameService.getUsernameFromAuthToken(authToken);
+
+            // Get the current game state
+            GameData game = gameService.getGame(gameID);
+
+            // Check if the user is actually a player in the game
+            if (!username.equals(game.whiteUsername()) && !username.equals(game.blackUsername())) {
+                sendErrorMessage(session, "Error: Only players can resign from a game");
+                return;
+            }
+
+            // Update the game state
+            gameService.resignGame(gameID, authToken);
 
             // Send NOTIFICATION message to all clients in the game
             sendNotificationToAll(gameID, username + " has resigned from the game.");
 
-            // We're not sending the updated game state to anyone
         } catch (Exception e) {
             sendErrorMessage(session, "Error: " + e.getMessage());
         }
