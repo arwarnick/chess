@@ -34,17 +34,21 @@ public class HTTPHandler {
         Spark.put("/game", this::handleJoinGame);
     }
 
-    private Object handleClearDatabase(Request request, Response response) throws DataAccessException {
-        userService.clear();
-        authService.clear();
-        gameService.clear();
-        response.status(200);
-        return "{}";
+    private Object handleClearDatabase(Request request, Response response) {
+        try {
+            userService.clear();
+            authService.clear();
+            gameService.clear();
+            response.status(200);
+            return "{}";
+        } catch (DataAccessException e) {
+            return handleException(e, response);
+        }
     }
 
-    private Object handleRegisterUser(Request request, Response response) throws DataAccessException {
-        var registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
+    private Object handleRegisterUser(Request request, Response response) {
         try {
+            var registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
             RegisterResult result = userService.register(registerRequest);
             response.status(200);
             return gson.toJson(result);
@@ -53,9 +57,9 @@ public class HTTPHandler {
         }
     }
 
-    private Object handleLoginUser(Request request, Response response) throws DataAccessException {
-        var loginRequest = gson.fromJson(request.body(), LoginRequest.class);
+    private Object handleLoginUser(Request request, Response response) {
         try {
+            var loginRequest = gson.fromJson(request.body(), LoginRequest.class);
             LoginResult result = authService.login(loginRequest);
             response.status(200);
             return gson.toJson(result);
@@ -64,9 +68,9 @@ public class HTTPHandler {
         }
     }
 
-    private Object handleLogoutUser(Request request, Response response) throws DataAccessException {
-        String authToken = request.headers("Authorization");
+    private Object handleLogoutUser(Request request, Response response) {
         try {
+            String authToken = request.headers("Authorization");
             authService.logout(authToken);
             response.status(200);
             return "{}";
@@ -75,9 +79,9 @@ public class HTTPHandler {
         }
     }
 
-    private Object handleListGames(Request request, Response response) throws DataAccessException {
-        String authToken = request.headers("Authorization");
+    private Object handleListGames(Request request, Response response) {
         try {
+            String authToken = request.headers("Authorization");
             ListGamesResult result = gameService.listGames(authToken);
             response.status(200);
             return gson.toJson(result);
@@ -86,10 +90,10 @@ public class HTTPHandler {
         }
     }
 
-    private Object handleCreateGame(Request request, Response response) throws DataAccessException {
-        String authToken = request.headers("Authorization");
-        var createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
+    private Object handleCreateGame(Request request, Response response) {
         try {
+            String authToken = request.headers("Authorization");
+            var createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
             CreateGameResult result = gameService.createGame(createGameRequest, authToken);
             response.status(200);
             return gson.toJson(result);
@@ -98,10 +102,10 @@ public class HTTPHandler {
         }
     }
 
-    private Object handleJoinGame(Request request, Response response) throws DataAccessException {
-        String authToken = request.headers("Authorization");
-        var joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
+    private Object handleJoinGame(Request request, Response response) {
         try {
+            String authToken = request.headers("Authorization");
+            var joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
             gameService.joinGame(joinGameRequest, authToken);
             response.status(200);
             return "{}";
@@ -113,7 +117,7 @@ public class HTTPHandler {
         }
     }
 
-    private String handleException(DataAccessException e, Response response) {
+    private Object handleException(DataAccessException e, Response response) {
         ErrorResult errorResult = new ErrorResult(e.getMessage());
         response.status(determineHttpStatus(e));
         return gson.toJson(errorResult);

@@ -1,0 +1,36 @@
+
+|
+java:S1192"_Define a constant instead of duplicating this literal "    a  b  c  d  e  f  g  h    " 4 times.(´¨È›8¿š¢”2
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(ÀáìÈıÿÿÿÿ8şÏ×2
+U	java:S106"9Replace this use of System.out or System.err by a logger.(«•ÆÆ8şÏ×2
+U	java:S106"9Replace this use of System.out or System.err by a logger.(´¨È›8şÏ×2
+Z	java:S106"9Replace this use of System.out or System.err by a logger.(£§…ûúÿÿÿÿ8£ÍÓ‚’2
+U	java:S106$"9Replace this use of System.out or System.err by a logger.(òˆñ¹8Ë´Û‚’2
+U	java:S106'"9Replace this use of System.out or System.err by a logger.(´¨È›8Ğ¯İ‚’2
+U	java:S106+"9Replace this use of System.out or System.err by a logger.(¾ÿ’Ù8Ğ¯İ‚’2
+Z	java:S106."9Replace this use of System.out or System.err by a logger.(£§…ûúÿÿÿÿ8Ğ¯İ‚’2
+U	java:S1065"9Replace this use of System.out or System.err by a logger.(òˆñ¹8‡ñ™ƒ’2
+U	java:S1068"9Replace this use of System.out or System.err by a logger.(¾ÿ’Ù8ˆñ™ƒ’2
+Z	java:S106="9Replace this use of System.out or System.err by a logger.(âÏšÍÿÿÿÿÿ8ˆñ™ƒ’2
+U	java:S106@"9Replace this use of System.out or System.err by a logger.(×•œ²8ˆñ™ƒ’2
+c
+java:S3457E"AFormat specifiers should be used instead of string concatenation.(ß¥¡Áøÿÿÿÿ8ˆñ™ƒ’2
+Z	java:S106E"9Replace this use of System.out or System.err by a logger.(ß¥¡Áøÿÿÿÿ8ˆñ™ƒ’2
+Z	java:S106H"9Replace this use of System.out or System.err by a logger.(Úºö÷üÿÿÿÿ8Á¿š¢”2
+Z	java:S106I"9Replace this use of System.out or System.err by a logger.(¼æ³øùÿÿÿÿ8Á¿š¢”2
+Z	java:S106["9Replace this use of System.out or System.err by a logger.(ÎÉÎşÿÿÿÿ8Â¿š¢”2
+U	java:S106f"9Replace this use of System.out or System.err by a logger.(´¨È›8Ã¿š¢”2
+Z	java:S106i"9Replace this use of System.out or System.err by a logger.(£§…ûúÿÿÿÿ8Ã¿š¢”2
+U	java:S106r"9Replace this use of System.out or System.err by a logger.(òˆñ¹8Å¿š¢”2
+U	java:S106u"9Replace this use of System.out or System.err by a logger.(´¨È›8Æ¿š¢”2
+r
+java:S1172x"PRemove these unused method parameters "board", "selectedPosition", "legalMoves".(µ¯Ò²üÿÿÿÿ8Å¿š¢”2
+b
+java:S3358€"DExtract this nested ternary operation into an independent statement.(¥üÍ8Å¿š¢”2
+[	java:S106"9Replace this use of System.out or System.err by a logger.(âÏšÍÿÿÿÿÿ8Ñ¿š¢”2
+V	java:S106„"9Replace this use of System.out or System.err by a logger.(×•œ²8Ñ¿š¢”2
+d
+java:S3457‰"AFormat specifiers should be used instead of string concatenation.(ß¥¡Áøÿÿÿÿ8Ñ¿š¢”2
+[	java:S106‰"9Replace this use of System.out or System.err by a logger.(ß¥¡Áøÿÿÿÿ8Ñ¿š¢”2
+[	java:S106Œ"9Replace this use of System.out or System.err by a logger.(Úºö÷üÿÿÿÿ8è†Î¢”2
+[	java:S106"9Replace this use of System.out or System.err by a logger.(¼æ³øùÿÿÿÿ8è†Î¢”2
