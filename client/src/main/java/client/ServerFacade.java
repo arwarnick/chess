@@ -152,7 +152,7 @@ public class ServerFacade {
         if (websocketSession != null && websocketSession.isOpen()) {
             if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
                 // Serialize the move as a string
-                command.setMove(gson.toJson(command.getMove()));
+                //command.setMove(gson.toJson(command.getMove()));
             }
             websocketSession.getBasicRemote().sendObject(gson.toJson(command));
         } else {

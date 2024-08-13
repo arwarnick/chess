@@ -61,8 +61,6 @@ a
 0server/src/test/java/dataaccess/AuthDAOTest.java,6\9\698548862c2d749b592e6eaee8ce2245605fb6f3
 `
 0server/src/test/java/dataaccess/UserDAOTest.java,6\5\65a5f3aa5806e0d7a9fee68f33fd08f8d43ccf31
-X
-(shared/src/main/java/model/GameData.java,5\5\5576294e62ca35aee743ff8a314bab938effe594
 N
 client/src/main/java/Main.java,e\c\ecb7a1924b25558f5bedb6f53e4d6092557bd541
 a

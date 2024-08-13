@@ -95,28 +95,38 @@ public class WebSocketHandler {
     private void handleMakeMove(Session session, UserGameCommand command) throws Exception {
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();
-        ChessMove move = gson.fromJson(command.getMove(), ChessMove.class);
+        ChessMove move = command.getMove();
 
         // Validate and make the move
         GameData updatedGame = gameService.makeMove(gameID, authToken, move);
 
-        // Send LOAD_GAME messages to all clients in the game
-        sendToGame(gameID, createLoadGameMessage(updatedGame));
-
-        // Send NOTIFICATION messages about the move
+        // Get the username of the player who made the move
         String username = gameService.getUsernameFromAuthToken(authToken);
-        sendNotificationToAll(gameID, username + " made a move: " + move.toString());
 
-        // Check for check, checkmate, or stalemate
-        ChessGame chess = updatedGame.game();
-        if (chess.isInCheck(chess.getTeamTurn())) {
-            sendNotificationToAll(gameID, "Check!");
+        // Send LOAD_GAME message to all clients in the game
+        ServerMessage loadGameMessage = createLoadGameMessage(updatedGame);
+        Set<Session> gameSessions = this.gameSessions.get(gameID);
+        if (gameSessions != null) {
+            for (Session clientSession : gameSessions) {
+                sendMessage(clientSession, loadGameMessage);
+
+                // Send NOTIFICATION only to other players
+                if (clientSession != session) {
+                    ServerMessage notificationMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    notificationMessage.setMessage(username + " made a move: " + move.toString());
+                    sendMessage(clientSession, notificationMessage);
+                }
+            }
         }
+
+        // Check for checkmate, stalemate, or check
+        ChessGame chess = updatedGame.game();
         if (chess.isInCheckmate(chess.getTeamTurn())) {
             sendNotificationToAll(gameID, "Checkmate! " + username + " wins!");
-        }
-        if (chess.isInStalemate(chess.getTeamTurn())) {
+        } else if (chess.isInStalemate(chess.getTeamTurn())) {
             sendNotificationToAll(gameID, "Stalemate! The game is a draw.");
+        } else if (chess.isInCheck(chess.getTeamTurn())) {
+            sendNotificationToAll(gameID, "Check!");
         }
     }
 
