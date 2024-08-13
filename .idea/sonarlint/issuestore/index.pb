@@ -35,8 +35,6 @@ A
 -server/src/main/java/service/AuthService.java,7\2\721af4389b7e205f5d1bf75e66493359ed680666
 a
 1server/src/test/java/service/UserServiceTest.java,f\8\f83e2b8b7a9719d4425a9cc2599f40c240264d67
-d
-4server/src/main/java/dataaccess/DatabaseManager.java,f\b\fb7cdb568d97831984b27de21950263d16967a67
 Z
 *shared/src/main/java/chess/ChessBoard.java,d\f\dfc4ec84b5d57ac6e0266e9c319b728da99e0c51
 a
