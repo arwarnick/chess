@@ -31,8 +31,9 @@ public class Server {
 
         try {
             DatabaseManager.createDatabase();
+            DatabaseManager.createTables();
         } catch (DataAccessException e) {
-            System.err.println("Failed to create database: " + e.getMessage());
+            System.err.println("Failed to initialize database: " + e.getMessage());
             return -1;
         }
 
