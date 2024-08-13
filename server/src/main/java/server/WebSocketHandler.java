@@ -165,18 +165,6 @@ public class WebSocketHandler {
         }
     }
 
-    // New method to send a message to all sessions in a game except one
-    private void sendToGameExcept(int gameID, ServerMessage message, Session exceptSession) {
-        Set<Session> sessions = gameSessions.get(gameID);
-        if (sessions != null) {
-            for (Session session : sessions) {
-                if (session != exceptSession) {
-                    sendMessage(session, message);
-                }
-            }
-        }
-    }
-
     private void handleLeave(Session session, UserGameCommand command) throws Exception {
         int gameID = command.getGameID();
         String authToken = command.getAuthToken();

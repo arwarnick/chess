@@ -85,11 +85,7 @@ X
 (client/src/main/java/ui/PostloginUI.java,8\5\8575f3c0e28f7aa5f78b4cd04cdac2d5773691aa
 Y
 )client/src/main/java/ui/ChessboardUI.java,2\1\21074ab2c8379065a96b02962b73e602adbf4547
-j
-:shared/src/main/java/websocket/messages/ServerMessage.java,f\e\fe32700f7e09df25841d54d884adfd3e6253f49f
 b
 2client/src/test/java/client/ServerFacadeTests.java,e\6\e6826acb161285e1dab795e5cfe93be0d16ca8b4
 d
 4server/src/test/java/passoff/server/TestFactory.java,f\1\f17bfe7598740b202a9c5b15dbbfbefe62f23921
-]
--client/src/main/java/client/ServerFacade.java,5\b\5bd64cfd26161b763663e9d940febeb7f9d2d1ad

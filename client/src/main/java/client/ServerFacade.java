@@ -142,12 +142,6 @@ public class ServerFacade {
         this.websocketSession = container.connectToServer(this, new URI(url));
     }
 
-    public void disconnectFromWebSocket() throws IOException {
-        if (websocketSession != null && websocketSession.isOpen()) {
-            websocketSession.close();
-        }
-    }
-
     public void sendCommand(UserGameCommand command) throws IOException, EncodeException {
         if (websocketSession != null && websocketSession.isOpen()) {
             if (command.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
@@ -166,16 +160,6 @@ public class ServerFacade {
         if (observer != null) {
             observer.onServerMessage(serverMessage);
         }
-    }
-
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("WebSocket connection closed: " + closeReason.getReasonPhrase());
-    }
-
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.out.println("WebSocket error: " + throwable.getMessage());
     }
 
     public interface ServerMessageObserver {
